@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <ctime>
-//practice the git branch
+//Creating a new branch is quick AND simple
 using namespace std;
 class add()
 {
