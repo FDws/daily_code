@@ -1,11 +1,11 @@
 #include <iostream>
 #include <string>
 #include <ctime>
-
+//practice the git branch
 using namespace std;
 class add()
 {
-		cout<<"add somethings"<<endl;
+	cout<<"add somethings"<<endl;
 }
 
 int main()
