@@ -1,9 +1,10 @@
 #include <iostream>
 #include <string>
 #include <ctime>
-//practice the git branch
-//creating a new branch is quick & simple
 using namespace std;
+
+//Creating a new branch is quick and simple.
+
 class add()
 {
 	cout<<"add somethings"<<endl;
