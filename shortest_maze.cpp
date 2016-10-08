@@ -85,20 +85,20 @@ void path::input(int h, int w)
 		}
 	}
 }
-void push(LinkNode* p)
+void path::push(LinkNode* p)
 {
 	temp->next =  p;
 	temp = p;
 }
 
-LinkNode*  pop()
+LinkNode*  path::pop()
 {
 	LinkNode* t = first->next;
 	first ->next = t->next;
 	return t;
 }
 
-void search()
+void path::search()
 {
 	
 	
