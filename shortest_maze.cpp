@@ -5,7 +5,7 @@ struct loc
 {
 	int x;
 	int y;
-}
+};
 
 struct LinkNode
 {
@@ -13,23 +13,25 @@ struct LinkNode
 	int y;
 	int lv;
 	LinkNode* next;
-	LinkNode(int a=0, int b=0,LinkNode* p=NULL);
-}
-LinkNode::LinkNode(int a, int b, LinkNode* p)
+	LinkNode(int l = 1,int a=0, int b=0,LinkNode* p=NULL);
+};
+
+LinkNode::LinkNode(int l, int a, int b, LinkNode* p)
 {
 	x = a;
 	y = b;
+	lv = l;
 	next = p;
 }
 
 class path
 {
 	private:
-			int in_x;
-			int in_y;
+			int out_x;
+			int out_y;
 			int **maze;
 			LinkNode* first;
-			LInkNode* temp;
+			LinkNode* temp;
 			loc add[8];
 	public:
 			path();
@@ -38,7 +40,7 @@ class path
 			void push(LinkNode* p);
 			LinkNode* pop();
 			void search();
-}
+};
 
 path::path()
 {
@@ -66,7 +68,10 @@ void path::input(int h, int w)
 	int i;
 	int j;
 
-	maze = new int[h];
+	out_x = w;
+	out_y = h;
+
+	maze = new int*[h];
 	for (i=0;i<h;i++)
 	{
 		maze[i] = new int[w];
@@ -77,11 +82,6 @@ void path::input(int h, int w)
 		for (j=0;j<w;j++)
 		{
 			cin>>maze[i][j];
-			if (maze[i][j]==3)
-			{
-				in_x = j;
-				in_y = i;
-			}
 		}
 	}
 }
@@ -100,10 +100,73 @@ LinkNode*  path::pop()
 
 void path::search()
 {
+	int i;
+	int j;
+
+	LinkNode* point = new LinkNode(2);
+	LinkNode* son;
+
+	push(point);
+	point = pop();
 	
+	while(point->x!=out_x-1&&point->y!=out_y)
+	{
+		for (i=0;i<8;i++)
+		{
+			if (point->x+add[i].x<0||point->y+add[i].y<0) continue;
+
+			if (maze[point->x+add[i].x][point->y+add[i].y]==0)	
+			{
+				son = new LinkNode(point->lv+1,point->x+add[i].x,point->y+add[i].y);
+				maze[point->x+add[i].x][point->y+add[i].y] = point->lv+1;
+				push(son);
+			}
+		}
+
+		delete point;
+		point = pop();
+	}
+
+	int x=out_x;
+	int y=out_y;
+	int l;
+	
+	cout<<"（"<<y<<"，"<<x<<"）";
+
+	while(!x&&!y)
+	{
+		for (i=0;i<8;i++)
+		{
+			if (x+add[i].x<0||y+add[i].y<0) continue;
+
+			if (maze[x+add[i].x][y+add[i].y]==maze[x][y]-1)
+			{
+				x = x + add[i].x;
+				y = y + add[i].y;
+				cout<<"（"<<y<<"，"<<x<<"）";
+			}
+		}
+	}
+}
+path::~path()
+{
+	while(first->next)
+	{
+		temp = first;
+		first = first->next;
+		delete temp;
+	}
+}
 	
 int main()
 {
-	cout<<"the new cpp"<<endl;
+	int x;
+	int y;
+	cin>>x>>y;
+
+	path pa;
+	pa.input(x,y);
+	pa.search();
+
 	return 0;
 }
