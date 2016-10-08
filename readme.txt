@@ -1,24 +1,6 @@
-#include <iostream>
-#include <string>
-#include <ctime>
-using namespace std;
+The repository used to save the daliy code.
+Most of them is the result of school work.
+My school is NWSUAF.
+Now,the class is Data Structure.
+The language is c++.
 
-//Creating a new branch is quick and simple.
-
-class add()
-{
-	cout<<"add somethings"<<endl;
-}
-
-int main()
-{
-	int i=0;
-	add();
-
-	for (i=0;i<26;i++)
-	{
-		cout<<'a'+i<<endl;
-	}
-
-	return 0;
-}
