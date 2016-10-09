@@ -110,17 +110,20 @@ void path::search()
 	//int j;
 
 	LinkNode* point = new LinkNode(2);
+	maze[0][0]=2;
 	LinkNode* son;
 
 	//push(point);
 	//point = pop();
 	
-	while(point->x!=out_x-1||point->y!=out_y)
+	while(point->x!=out_x-1||point->y!=out_y-1)
 	{
 		for (i=0;i<8;i++)
 		{
 			if (point->x+add[i].x<0||point->y+add[i].y<0||point->x+add[i].x==out_x||point->y+add[i].y == out_y) continue;
-
+			cout<<point->x<<" "<<point->y<<"--";
+			cout<<point->x+add[i].x<<" "<<point->y+add[i].y<<endl;
+			if (first->next) cout<<"==="<<first->next->x<<" "<<first->next->y<<endl;
 			if (maze[point->x+add[i].x][point->y+add[i].y]==0)	
 			{
 				son = new LinkNode(point->lv+1,point->x+add[i].x,point->y+add[i].y);
@@ -135,9 +138,8 @@ void path::search()
 
 	int x=out_x-1;
 	int y=out_y-1;
-	int l;
 	
-	cout<<"("<<y+1<<","<<x+1<<")";
+	cout<<"("<<x+1<<","<<y+1<<")";
 
 	while(x||y)
 	{
@@ -149,7 +151,7 @@ void path::search()
 			{
 				x = x + add[i].x;
 				y = y + add[i].y;
-				cout<<"（"<<y<<"，"<<x<<"）";
+				cout<<"（"<<x<<"，"<<y<<"）";
 				break;
 			}
 		}
