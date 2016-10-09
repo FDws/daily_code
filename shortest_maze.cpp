@@ -46,21 +46,21 @@ path::path()
 {
 	first = new LinkNode();
 	temp = first;
-	add[0].x = 0;
-	add[0].y = -1;
-	add[1].x = 0;
-	add[1].y = 1;
-	add[2].x = 1;
-	add[2].y = 0;
-	add[3].x = -1;
-	add[3].y = 0;
-	add[4].x = -1;
-	add[4].y = -1;
-	add[5].x = -1;
+	add[0].x = -1;
+	add[0].y = 0;
+	add[1].x = -1;
+	add[1].y = -1;
+	add[2].x = 0;
+	add[2].y = -1;
+	add[3].x = 1;
+	add[3].y = -1;
+	add[4].x = 1;
+	add[4].y = 0;
+	add[5].x = 1;
 	add[5].y = 1;
-	add[6].x = 1;
-	add[6].y = -1;
-	add[7].x = 1;
+	add[6].x = 0;
+	add[6].y = 1;
+	add[7].x = -1;
 	add[7].y = 1;
 }
 void path::input(int h, int w)
@@ -68,8 +68,8 @@ void path::input(int h, int w)
 	int i;
 	int j;
 
-	out_x = w;
-	out_y = h;
+	out_x = h;
+	out_y = w;
 
 	maze = new int*[h];
 	for (i=0;i<h;i++)
@@ -84,6 +84,7 @@ void path::input(int h, int w)
 			cin>>maze[i][j];
 		}
 	}
+	cout<<"Input finish"<<endl;
 }
 void path::push(LinkNode* p)
 {
@@ -94,6 +95,11 @@ void path::push(LinkNode* p)
 LinkNode*  path::pop()
 {
 	LinkNode* t = first->next;
+	if (first->next = temp)
+	{
+			temp=first;
+	}
+
 	first ->next = t->next;
 	return t;
 }
@@ -101,19 +107,19 @@ LinkNode*  path::pop()
 void path::search()
 {
 	int i;
-	int j;
+	//int j;
 
 	LinkNode* point = new LinkNode(2);
 	LinkNode* son;
 
-	push(point);
-	point = pop();
+	//push(point);
+	//point = pop();
 	
-	while(point->x!=out_x-1&&point->y!=out_y)
+	while(point->x!=out_x-1||point->y!=out_y)
 	{
 		for (i=0;i<8;i++)
 		{
-			if (point->x+add[i].x<0||point->y+add[i].y<0) continue;
+			if (point->x+add[i].x<0||point->y+add[i].y<0||point->x+add[i].x==out_x||point->y+add[i].y == out_y) continue;
 
 			if (maze[point->x+add[i].x][point->y+add[i].y]==0)	
 			{
@@ -127,23 +133,24 @@ void path::search()
 		point = pop();
 	}
 
-	int x=out_x;
-	int y=out_y;
+	int x=out_x-1;
+	int y=out_y-1;
 	int l;
 	
-	cout<<"（"<<y<<"，"<<x<<"）";
+	cout<<"("<<y+1<<","<<x+1<<")";
 
-	while(!x&&!y)
+	while(x||y)
 	{
 		for (i=0;i<8;i++)
 		{
-			if (x+add[i].x<0||y+add[i].y<0) continue;
+			if (x+add[i].x<0||y+add[i].y<0||x+add[i].x == out_x||y+add[i].y==out_y) continue;
 
 			if (maze[x+add[i].x][y+add[i].y]==maze[x][y]-1)
 			{
 				x = x + add[i].x;
 				y = y + add[i].y;
 				cout<<"（"<<y<<"，"<<x<<"）";
+				break;
 			}
 		}
 	}
