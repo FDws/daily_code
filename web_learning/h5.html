@@ -1,102 +1,51 @@
 <!DOCTYPE HTML>
 <html>
-	<title>This is title</title>
-
-<head>
-	<style type = "text/css">
-		body {background-color:red}
-		p {margin-left:200px}
-	</style>
-
-<body >
-	<h1 style = "text-align:center">My first Heading</h1>
-		<hr />
-	<h2 style="font-family:verdana">My second heading </h2>
-		<hr />
-	<h3>My third heading</h3>
-		<hr />
-
-	<b>
-		<s>
-			<u>This is 
-				<sup>Top tags</sup>
-				big word
-				<sub>Bottom tags</sub>
-			</u>
-		</s>
-	</b>
-	
-	<div style='color:blue'>
-		<p> AAA </p>
-		<p style ='color:yellow'>bbbbbbbb</p>
-		<p >cccccccc</p>
-		<p >dddddddd</p>
+	<head>
+		<title>DIV</title>
+<style>
+#header
+{
+	background:blue;
+	height:100px;
+}
+#content{}
+#right
+{
+	width:33%;
+	height:250px;
+	float:right;
+	background:green;
+}
+#left
+{
+	width:33%;
+	height:250px;
+	float:left;
+	background:gray;
+}
+#middle
+{
+	width:33%;
+	height:250px;
+	float:left;
+	background:orange;
+}
+#bottom
+{
+	height:80px;
+	background:yellow;
+	clear:both;
+}
+</style>
+</head>
+<body>
+	<div id ="header">Header</div>
+	<div id = "content">
+		<div id ="right">Right</div>
+		<div id ="left">Left</div>
+		<div id ="middle">MID</div>
 	</div>
-	
-	<a href = "#cc">click to code</a>
-	<br />
-	<a href="mailto:885374150@qq.com">My email</a>
-	<br />
-	<a href = "http://www.nwsuaf.edu.cn" target='_blank'>This is a link</a>
-		<br />
-	
-	<a href="http://www.baidu.com"  target="_blank" alt = "baidu" <img src="http://www.baidu.com/img/baidu_jgylogo3.gif" alt="baidu" border="0px"/></a>
+	<div id = "bottom">Bottom</div>
 
-	<font size="1">Html learning</font>
-	<br />
-	
-	<font size="1" color = "red">Html learning</font>
-	<br />
-	<font size="2" color = 'green'>Html learning</font>
-	<br />
-	<font size="3" color = 'blue'>Html learning</font>
-	<br />
-	<font size="4" color = 'white'>Html learning</font>
-	<br />
-	<font size="5" color = 'yellow'>Html learning</font>
-	<br />
-	<font size="6" color = '#cccccc'>Html learning</font>
-
-	<ol>
-		<li>AAAAAAAAAAAAAAAAA</li>
-		<li>BBBBBBBBBBBBBBBBB</li>
-		<li>CCCCCCCCCCCCCCCCC</li>
-	</ol>
-	
-	<pre>
-		<code> 
-			#include<iostream>
-			using namespace std;
-			
-			int main()
-			{
-					cout&lt;&lt;"hello world"&lt;&lt;endl;
-					return 0;
-			}
-		</code>
-		<a name = "cc"> To this</a>
-	</pre>
-	<form action="jwgl.nwsuaf.edu.cn" method="GET">
-			<b>Admin:<input type ="text"></b>
-			<br />
-			<b>Password:<input type = "password"></b>
-			<br />
-			<input type = "button" value = "get">
-
-	</form>
-	<form>
-			<input type='checkbox' name = 'book'> DIV
-			<input type='checkbox' name = 'book'> HTML
-			<input type='checkbox'   name = 'book'> CSS
-	</form>
-	<form>
-			<select>
-					<option>HTML</option>
-					<option>CSS</option>
-					<option>JS</option>
-			</select>
-	</form>
-	<textarea name = book rows = 9 cols = 90></textarea>
 </body>
 </html>
-
