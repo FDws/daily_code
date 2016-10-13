@@ -1,0 +1,61 @@
+.header
+{
+	height:30px;
+	margin:auto;
+	background:pink;
+	border:2px solid black;
+}
+.left_frame{
+	height:300px;
+	width:20%;
+	padding-right:0px;
+	float:left;
+	background:red;
+	}
+.mainbox{
+	height:300px;
+	float:left;
+	width:60%;
+	background:gray;
+	}
+.right_frame{
+	height:300px;
+	/*margin-top:30px;
+	margin-right:0px;*/
+	float:right;
+	width:20%;
+	background:orange ;
+	border:0px;
+	}
+.footer{
+	height:20px;
+	clear:both;
+	background:green;
+	border:0px;
+	}
+.in_le{
+	height:150px;
+	width:50%;
+	margin-top:50px;
+	float:right;
+	background:purple;
+	border:0px;
+	}
+.in_main{
+	height:150px;
+	width:150px;
+	margin-top:50px;
+	margin-right:auto;
+	margin-left:auto;
+	background:purple;
+	clear:both;
+	border:0px;
+	}
+.in_right{
+	height:150px;
+	width:150px;
+	margin-top:50px;
+	margin-left:0px;
+	background:purple;
+	border:0px;
+	}

@@ -2,50 +2,24 @@
 <html>
 	<head>
 		<title>DIV</title>
-<style>
-#header
-{
-	background:blue;
-	height:100px;
-}
-#content{}
-#right
-{
-	width:33%;
-	height:250px;
-	float:right;
-	background:green;
-}
-#left
-{
-	width:33%;
-	height:250px;
-	float:left;
-	background:gray;
-}
-#middle
-{
-	width:33%;
-	height:250px;
-	float:left;
-	background:orange;
-}
-#bottom
-{
-	height:80px;
-	background:yellow;
-	clear:both;
-}
-</style>
-</head>
-<body>
-	<div id ="header">Header</div>
-	<div id = "content">
-		<div id ="right">Right</div>
-		<div id ="left">Left</div>
-		<div id ="middle">MID</div>
-	</div>
-	<div id = "bottom">Bottom</div>
+		<link type = "text/css" rel="stylesheet" href="style.css">
+	</head>
+	
+	<body>
+		<div class="header">This is header</div>
 
-</body>
+		<div class="left_frame">
+			<div class="in_le">This in left</div>
+		</div>
+
+		<div class="mainbox">
+			<div class="in_main">This in mainbox</div>
+		</div>
+
+		<div class="right_frame">
+			<div class="in_right">This in right</div>
+		</div>
+
+		<div class="footer"> This is footer</div>
+	</body>
 </html>
