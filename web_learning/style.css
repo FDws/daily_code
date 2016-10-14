@@ -2,11 +2,13 @@
 {
 	height:30px;
 	margin:auto;
+	font-weight:bold;
 	background:pink;
 	border:2px solid black;
 }
 .left_frame{
 	height:300px;
+	font-weight:bolder;
 	width:20%;
 	padding-right:0px;
 	float:left;
@@ -16,6 +18,7 @@
 	height:300px;
 	float:left;
 	width:60%;
+	font-weight:lighter;
 	background:gray;
 	}
 .right_frame{
@@ -23,18 +26,21 @@
 	/*margin-top:30px;
 	margin-right:0px;*/
 	float:right;
+	font-weight:100;
 	width:20%;
 	background:orange ;
 	border:0px;
 	}
 .footer{
 	height:20px;
+	font-weight:300;
 	clear:both;
 	background:green;
 	border:0px;
 	}
 .in_le{
 	height:150px;
+	font-weight:500;
 	width:50%;
 	margin-top:50px;
 	float:right;
@@ -47,6 +53,7 @@
 	margin-top:50px;
 	margin-right:auto;
 	margin-left:auto;
+	font-weight:600;
 	background:purple;
 	clear:both;
 	border:0px;

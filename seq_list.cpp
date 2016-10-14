@@ -138,7 +138,7 @@ public:
         }
 
     }
-    void add_list(const SeqList<T> se)
+    void add_list(const SeqList<T>& se)
     {
         length = length+se.length;
         temp = new T[length];
