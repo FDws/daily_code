@@ -12,6 +12,19 @@ struct sign
 		next=p;
 	}
 };
+int char_int(char ch)
+{
+	switch(ch)
+	{
+		case '(':return 6;
+		case '+':return 5;
+		case '-':return 4;
+		case '*':return 3;
+		case '/':return 2;
+		case ')':return 1;
+		case '#':return 0;
+	}
+}
 
 struct numbers
 {
@@ -96,7 +109,7 @@ int equation::pop_numbers()
 }
 int equation::big_than(char ch1,char ch2)
 {
-	
+	return (char_int(ch1)>char_int(ch2));	
 }
 
 void equation::input()
@@ -122,5 +135,4 @@ void equation::input()
 }
 void equation::out_put()
 {
-
-
+	
