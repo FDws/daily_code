@@ -25,6 +25,7 @@ int char_int(char ch)
 		case ')':return 1;
 		case '#':return 0;
 	}
+	return -1;
 }
 
 struct numbers
@@ -66,8 +67,11 @@ equation::equation()
 }
 void equation::push_sign(char a)
 {
-	sign* temp = new sign(a,first->next);
-	first->next = temp;
+	if (a!='#')
+	{
+		sign* temp = new sign(a,first->next);
+		first->next = temp;
+	}
 }
 void equation::push_numbers(int a)
 {
@@ -102,7 +106,6 @@ int equation::pop_numbers()
 	else
 	{
 		cout<<"Please check the equation!!"<<endl;
-		input();
 		return -1;
 	}
 	top->next = temp->next;
@@ -117,7 +120,8 @@ int equation::big_than(char ch1,char ch2)
 void equation::input()
 {
 	cin>>e;
-	int i;
+	unsigned long i;
+	int j;
 	char ch;
 
 	e = e+'#';
@@ -133,24 +137,23 @@ void equation::input()
 	len++;
 	cout<<len<<endl;
 	data = new int[len];
-	for (i=0;i<len;i++)
+	for (j=0;j<len;j++)
 	{
-		cin>>ch>>data[i];
+		cin>>ch>>data[j];
 	}
-	cout<<"input finish"<<endl;
 	
 }
 void equation::out_put()
 {
-	cout<<"begin "<<endl;
-	int is;
+	unsigned long is=0;
 	char te;
 	int t;
-	for(is=0;is<e.length();is++)
+	while(1)
 	{
-		if (e[is]>='A'&&e[is]<='Z')
+		if (e[is]>='A'&& e[is]<='Z')
 		{
 			push_numbers(data[e[is]-'A']);
+			is++;
 		}
 		else
 		{
@@ -159,6 +162,7 @@ void equation::out_put()
 			{
 				push_sign(te);
 				push_sign(e[is]);
+				is++;
 			}
 			else 
 			{
@@ -174,12 +178,23 @@ void equation::out_put()
 							  break;
 				}
 				push_numbers(t);
-				if (e[is]==')')
+				
+				if(first->next==NULL&&e[is]=='#')
+				{
+					break;
+				}
+				else if(e[is]==')')
 				{
 					pop_sign();
+					is++;
 				}
-				else is--; 
+				else if(e[is]!='#')
+				{
+					push_sign(e[is]);
+					is++;
+				}
 			}
+			
 		}
   	}
 
