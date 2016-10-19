@@ -60,6 +60,7 @@ class equation
 
 equation::equation()
 {
+	len = 0;
 	first = new sign();
 	top  = new numbers();
 }
@@ -117,7 +118,6 @@ void equation::input()
 {
 	cin>>e;
 	int i;
-	len=0;
 	char ch;
 
 	e = e+'#';
@@ -127,19 +127,22 @@ void equation::input()
 	{
 		if (e[i]>='A'&&e[i]<='Z')
 		{
-			len++;
+			len=(len>e[i]-'A')?len:e[i]-'A';	
 		}
 	}
-
+	len++;
+	cout<<len<<endl;
 	data = new int[len];
 	for (i=0;i<len;i++)
 	{
 		cin>>ch>>data[i];
 	}
+	cout<<"input finish"<<endl;
 	
 }
 void equation::out_put()
 {
+	cout<<"begin "<<endl;
 	int is;
 	char te;
 	int t;
