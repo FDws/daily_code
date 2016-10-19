@@ -12,15 +12,16 @@ struct sign
 		next=p;
 	}
 };
+
 int char_int(char ch)
 {
 	switch(ch)
 	{
 		case '(':return 6;
-		case '+':return 5;
-		case '-':return 4;
-		case '*':return 3;
-		case '/':return 2;
+		case '+':return 3;
+		case '-':return 3;
+		case '*':return 5;
+		case '/':return 5;
 		case ')':return 1;
 		case '#':return 0;
 	}
@@ -53,7 +54,7 @@ class equation
 		int pop_numbers();
 		void input();
 		void out_put();
-		int big_than(char ch1,ch2);
+		int big_than(char ch1,char ch2);
 		~equation();
 };
 
@@ -116,7 +117,11 @@ void equation::input()
 {
 	cin>>e;
 	int i;
+	len=0;
 	char ch;
+
+	e = e+'#';
+	cout<<e<<" "<<e.length()<<endl;
 
 	for (i=0;i<e.length();i++)
 	{
@@ -135,4 +140,63 @@ void equation::input()
 }
 void equation::out_put()
 {
-	
+	int is;
+	char te;
+	int t;
+	for(is=0;is<e.length();is++)
+	{
+		if (e[is]>='A'&&e[is]<='Z')
+		{
+			push_numbers(data[e[is]-'A']);
+		}
+		else
+		{
+			te=pop_sign();
+			if (te=='('||big_than(e[is],te))
+			{
+				push_sign(te);
+				push_sign(e[is]);
+			}
+			else 
+			{
+				switch(te)
+				{
+					case '+': t = pop_numbers()+pop_numbers();
+							  break;
+					case '-': t = pop_numbers()-pop_numbers();
+							  break;
+					case '*': t = pop_numbers()*pop_numbers();
+							  break;
+					case '/': t = pop_numbers() / pop_numbers();
+							  break;
+				}
+				push_numbers(t);
+				if (e[is]==')')
+				{
+					pop_sign();
+				}
+				else is--; 
+			}
+		}
+  	}
+
+	cout<<pop_numbers()<<endl;
+}
+equation::~equation()
+{
+	delete first->next;
+	delete top->next;
+	delete first;
+	delete top;
+	delete [] data;
+}
+
+int main()
+{
+	equation eq;
+	eq.input();
+	eq.out_put();
+
+	return 0;
+}
+
