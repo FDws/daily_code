@@ -45,12 +45,11 @@ void point::str_int(int id,string& st)
 		case 4:bottom_power=te;break;
 	}
 }
-class multi_data
+struct multi_data
 {
-	private:
 		point *first;
-	public:
-		multi_data();
+		multi_data *next;
+		multi_data(multi_data* m = NULL,multi_data* p = NULL);
 		void input(string s);
 		void push(string sign_c,string sign_p,string s_ct,string s_cb,string s_pt,string s_pb);
 		void parse_str_data(string& t,string &s1,string &s2,string &s3,string &s4,string &s5,string &s6);
@@ -58,9 +57,10 @@ class multi_data
 		point* pop();
 		~multi_data();
 };
-multi_data::multi_data()
+multi_data::multi_data(multi_data* m,multi_data* p)
 {
 	first = new point();
+	next = p;
 }
 void multi_data::parse_str_data_part(string &t,string &s1,string &s2,string& s3)
 {
@@ -181,21 +181,39 @@ multi_data::~multi_data()
 		first=t;
 	}
 }
+struct sign
+{
+	char symble;
+	sign* next;
+	sign(char a='#',sign* p = NULL)
+	{
+		symble = a;
+		next = p;
+	}
+};
 class calc_multi
 {
 	private:
 		multi_data* mul;
+		multi_data* number_stack;
+		sign* sign_stack;
 		string expression;
 		int len;
 	public:
 		calc_multi();
 		void input();
+		void push_sign(char a);
+		void push_number(multi_data a);
+		char pop_sign();
+		multi_data* pop_number();
 		void output();
 		~calc_multi();
 };
 calc_multi::calc_multi()
 {
 	len=0;
+	number_stack = new multi_data();
+	sign_stack = new sign();
 }
 void calc_multi::input()
 {
@@ -220,4 +238,16 @@ void calc_multi::input()
 		mul[i].input(te);		
 	}
 }
-
+void calc_multi::push_sign(char a)
+{
+	if(a!='#')
+	{
+		sign* temp =  new sign(a,sign_stack->next);
+		sign_stack->next = temp->next;
+	}
+}
+void calc_multi::push_number(multi_data a)
+{
+	multi_data* t = new multi_data(a,number_stack->next);
+	number_stack->next = t->next;
+}
