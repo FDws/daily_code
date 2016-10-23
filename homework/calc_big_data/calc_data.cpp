@@ -2,6 +2,10 @@
 #include<cstring>
 using namespace std;
 
+int* operator*(int* a,int *b)
+{
+	int* t=new int[a[0]*b[0]];
+
 struct point
 {
 	string sign_coefficient;
@@ -13,7 +17,9 @@ struct point
 	point* next;
 
 	point(string s1="+",string s2="+",string tc="1",string bc="1",string tp="1",string bp="1",point* p=NULL);
+	point(string sign_c,string sign_p,int* s_ct,int* s_cb,int* s_pt,int* s_pb,point* p = NULL);
 	void str_int(int id,string& st);
+	void copy_int(int* aim, int* t);
 };
 point::point(string s1,string s2,string tc,string bc,string tp,string bp,point* p)
 {
@@ -25,6 +31,27 @@ point::point(string s1,string s2,string tc,string bc,string tp,string bp,point* 
 	str_int(3,tp);
 	str_int(4,bp);
 	next=p;
+}
+point::point(string sign_c,string sign_p,int* s_ct,int* s_cb,int* s_pt,int* s_pb,point* p)
+{
+	sign_coefficient = sign_c;
+	sign_coefficient = sign_p;
+	
+	copy_int(top_coefficient,s_ct);
+	copy_int(bottom_coefficient,s_cb);
+	copy_int(top_power,s_pt);
+	copy_int(bottom_power,s_pb);
+
+	next = p;
+}
+void point::copy_int(int* aim, int* t)
+{
+	aim = new int[t[0]];
+	int i;
+	for(i=0;i<t[0];i++)
+	{
+		aim[i]=t[i];
+	}
 }
 void point::str_int(int id,string& st)
 {
@@ -49,18 +76,70 @@ struct multi_data
 {
 		point *first;
 		multi_data *next;
-		multi_data(multi_data* m = NULL,multi_data* p = NULL);
+		multi_data();
 		void input(string s);
 		void push(string sign_c,string sign_p,string s_ct,string s_cb,string s_pt,string s_pb);
 		void parse_str_data(string& t,string &s1,string &s2,string &s3,string &s4,string &s5,string &s6);
 		void parse_str_data_part(string &t,string &s1,string &s2,string& s3);
+		void push(string sign_c,string sign_p,int * i1,int* i2, int* i3,int* i4);
+		friend multi_data* operator+(const multi_data& m1,const multi_data& m2);
+		friend multi_data* operator-(const multi_data& m1,const multi_data& m2);
+		friend multi_data* operator*(const multi_data& m1,const multi_data& m2);
+		friend multi_data* operator/(const multi_data& m1,const multi_data& m2);
 		point* pop();
 		~multi_data();
 };
-multi_data::multi_data(multi_data* m,multi_data* p)
+multi_data* operator+(const multi_data& m1,const multi_data& m2)
+{
+	multi_data* temp = new multi_data();
+
+	point* t = m1.first->next;
+	while(t)
+	{
+		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+	}
+
+	t = m2.first->next;
+	while(t)
+	{
+		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+	}
+	return temp;
+}
+
+multi_data* operator-(const multi_data& m1,const multi_data& m2)
+{
+	multi_data* temp = new multi_data();
+	point* t = m1.first->next;
+
+	while(t)
+	{
+		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+	}
+
+	t=m2.first->next;
+	while(t)
+	{
+		if(t->sign_coefficient=="-")
+		{
+			temp->push("+",t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+		}
+		else
+		{
+			temp->push("-",t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+		}
+
+	}
+
+	return temp;
+}
+
+multi_data* operator*(const multi_data& m1,const multi_data& m2)
+multi_data* operator/(const multi_data& m1,const multi_data& m2)
+multi_data::multi_data()
 {
 	first = new point();
-	next = p;
+	next = NULL;
 }
 void multi_data::parse_str_data_part(string &t,string &s1,string &s2,string& s3)
 {
@@ -108,6 +187,13 @@ void multi_data::push(string sign_c,string sign_p,string s_ct,string s_cb,string
 	p->next=first->next;
 	first->next=p;
 }
+void multi_data::push(string sign_c,string sign_p,int * i1,int* i2, int* i3,int* i4)
+{
+	point* p = new point(sign_c,sign_p,i1,i2,i3,i4);
+	p->next = first->next;
+	first->next = p;
+}
+
 point* multi_data::pop()
 {
 	point* t;
