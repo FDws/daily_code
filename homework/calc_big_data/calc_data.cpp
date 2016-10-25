@@ -2,9 +2,9 @@
 #include<cstring>
 using namespace std;
 
-int* data_multi(int* a,int* b)
+int* data_multi(const int* a,const int* b)
 {
-	int* temp = new int[a[0]+b[0]-1]();
+	int * temp = new int[a[0]+b[0]-1]();
 	temp[0] = a[0]+b[0]-1;
 
 	int i;
@@ -16,7 +16,7 @@ int* data_multi(int* a,int* b)
 		t = temp[0]-(b[0]-j);
 		for(i=a[0]-1;i>0;i--,t--)
 		{
-			temp[t]=temp[t]+a[i]*b[j];
+			temp[t] = temp[t]+a[i]*b[j];
 
 			temp[t-1] = temp[t-1]+temp[t]/10;
 			temp[t] = temp[t]%10;
@@ -29,7 +29,63 @@ int* data_multi(int* a,int* b)
 		}
 	}
 
-	if(temp[1]==0)
+	while(!temp[1]&&temp[0]>2)
+	{
+	    tt = new int[temp[0]-1];
+		tt[0] = temp[0]-1;
+
+		for(i=1;i<tt[0];i++)
+		{
+			tt[i] = temp[i+1];
+		}
+
+		delete [] temp;
+		temp = tt;
+	}
+	return temp;
+}
+int* data_add(int* a,int* b)
+{
+	int len = (a[0]>b[0]?a[0]+1:b[0]+1);
+	int* temp  = new int[len]();
+	temp[0] = len;
+
+	int i;
+	int j;
+	int t = len-1;
+	int* d;
+	int* tt;
+	if(a[0]<b[0])
+	{
+		d = a;
+		a = b;
+		b = d;
+	}
+
+	for(i=a[0]-1,j=b[0]-1;j>0;i--,j--,t--)
+	{
+		temp[t] = temp[t]+a[i]+b[j];
+
+		temp[t-1] = temp[t-1]+temp[t]/10;
+		temp[t] = temp[t]%10;
+
+		if(t-2>0)
+		{
+			temp[t-2] = temp[t-2] + temp[t-1]/10;
+			temp[t-1] = temp[t-1]%10;
+		}
+	}
+	while(i)
+	{
+		temp[t] =temp[t]+a[i];
+		temp[t-1] = temp[t-1]+temp[t]/10;
+		temp[t] = temp[t]%10;
+		i--;
+		t--;
+	}
+
+
+	while(!temp[1]&&temp[0]>2)
 	{
 		tt = new int[temp[0]-1];
 		tt[0] = temp[0]-1;
@@ -39,6 +95,52 @@ int* data_multi(int* a,int* b)
 			tt[i] = temp[i+1];
 		}
 
+		delete [] temp;
+		temp = tt;
+	}
+	return temp;
+
+}
+int* data_sub(const int* a,const int* b)
+{
+	int len = a[0]>b[0]?a[0]:b[0];
+	int* temp = new int[len]();
+	temp[0] = len;
+
+	int i;
+	int j;
+	for(i=a[0]-1,j=b[0]-1,len--;j>0;j--,i--,len--)
+	{
+		temp[len] = a[i]-b[j];
+	}
+
+	while(i)
+	{
+		temp[len] = a[i];
+		i--;
+		len--;
+	}
+
+	len = temp[0]-1;
+	while(len)
+	{
+		if(temp[len]<0)
+		{
+			temp[len] = temp[len]+10;
+			temp[len-1] = temp[len-1]-1;
+		}
+		len--;
+	}
+
+	while(!temp[1]&&temp[0]>2)
+	{
+		int* tt = new int[temp[0]-1];
+		tt[0] = temp[0]-1;
+
+		for(i=1;i<tt[0];i++)
+		{
+			tt[i] = temp[i+1];
+		}
 		delete [] temp;
 		temp = tt;
 	}
@@ -55,7 +157,7 @@ struct point
 	int* bottom_power;
 	point* next;
 
-	point(string s1,string s2,string tc,string bc,string tp,string bp,point* p);
+	point(string s1,string s2,string tc,string bc,string tp,string bp,point* p = NULL);
 	point();
 	point(string sign_c,string sign_p,int* s_ct,int* s_cb,int* s_pt,int* s_pb,point* p = NULL);
 	friend point* operator*(const point& a,const point &b);
@@ -76,6 +178,9 @@ point* operator*(const point& a,const point& b)
 		temp->sign_coefficient = "-";
 	}
 
+	temp->top_coefficient = data_multi(a.top_coefficient,b.top_coefficient);
+	temp->bottom_coefficient = data_multi(a.bottom_coefficient,b.bottom_coefficient);
+
 	
 	return temp;
 }
@@ -83,6 +188,7 @@ point::point()
 {
 	sign_coefficient = "+";
 	sign_power = "+";
+	next = NULL;
 }
 point::point(string s1,string s2,string tc,string bc,string tp,string bp,point* p)
 {
@@ -141,6 +247,7 @@ struct multi_data
 		point *first;
 		multi_data *next;
 		multi_data();
+		void copy_point(const multi_data* a);
 		void input(string s);
 		void push(string sign_c,string sign_p,string s_ct,string s_cb,string s_pt,string s_pb);
 		void parse_str_data(string& t,string &s1,string &s2,string &s3,string &s4,string &s5,string &s6);
@@ -154,6 +261,16 @@ struct multi_data
 		point* pop();
 		~multi_data();
 };
+void multi_data::copy_point(const multi_data* a)
+{
+	first = new point();
+	point* temp = a->first->next;
+	while(temp)
+	{
+		push(temp->sign_coefficient,temp->sign_power,temp->top_coefficient,temp->bottom_coefficient,temp->top_power,temp->bottom_power);
+		temp = temp->next;
+	}
+}
 void multi_data::push(point* p)
 {
 	p->next = first->next;
@@ -167,12 +284,14 @@ multi_data* operator+(const multi_data& m1,const multi_data& m2)
 	while(t)
 	{
 		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+		t = t->next;
 	}
 
 	t = m2.first->next;
 	while(t)
 	{
 		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+		t = t->next;
 	}
 	return temp;
 }
@@ -185,6 +304,7 @@ multi_data* operator-(const multi_data& m1,const multi_data& m2)
 	while(t)
 	{
 		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+		t=t->next;
 	}
 
 	t=m2.first->next;
@@ -193,19 +313,21 @@ multi_data* operator-(const multi_data& m1,const multi_data& m2)
 		if(t->sign_coefficient=="-")
 		{
 			temp->push("+",t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+			t = t->next;
 		}
 		else
 		{
 			temp->push("-",t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
+			t = t->next;
 		}
 
 	}
 
 	return temp;
 }
-
-multi_data* operator*(const multi_data& m1,const multi_data& m2)
-multi_data* operator/(const multi_data& m1,const multi_data& m2)
+//multi_data* operator*(const multi_data& m1,const multi_data& m2)
+//multi_data* operator*(const multi_data& m1,const multi_data& m2)
+//multi_data* operator/(const multi_data& m1,const multi_data& m2)
 multi_data::multi_data()
 {
 	first = new point();
@@ -358,10 +480,11 @@ class calc_multi
 		string expression;
 		int len;
 	public:
+
 		calc_multi();
 		void input();
 		void push_sign(char a);
-		void push_number(multi_data a);
+		void push_number(multi_data* a);
 		char pop_sign();
 		multi_data* pop_number();
 		void output();
@@ -404,8 +527,10 @@ void calc_multi::push_sign(char a)
 		sign_stack->next = temp->next;
 	}
 }
-void calc_multi::push_number(multi_data a)
+void calc_multi::push_number(multi_data* a)
 {
-	multi_data* t = new multi_data(a,number_stack->next);
+	multi_data* t = new multi_data();
+	t->copy_point(a);
+	t->next = number_stack->next;
 	number_stack->next = t->next;
 }
