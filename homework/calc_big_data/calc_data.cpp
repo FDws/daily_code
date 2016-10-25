@@ -2,10 +2,49 @@
 #include<cstring>
 using namespace std;
 
-int* operator*(int* a,int *b)
+int* data_multi(int* a,int* b)
 {
-	int* t=new int[a[0]*b[0]];
+	int* temp = new int[a[0]+b[0]-1]();
+	temp[0] = a[0]+b[0]-1;
 
+	int i;
+	int j;
+	int t;
+	int* tt;
+	for(j=b[0]-1;j>0;j--)
+	{
+		t = temp[0]-(b[0]-j);
+		for(i=a[0]-1;i>0;i--,t--)
+		{
+			temp[t]=temp[t]+a[i]*b[j];
+
+			temp[t-1] = temp[t-1]+temp[t]/10;
+			temp[t] = temp[t]%10;
+
+			if(t-2>0)
+			{
+				temp[t-2] = temp[t-2] + temp[t-1]/10;
+				temp[t-1] = temp[t-1]%10;
+			}
+		}
+	}
+
+	if(temp[1]==0)
+	{
+		tt = new int[temp[0]-1];
+		tt[0] = temp[0]-1;
+
+		for(i=1;i<tt[0];i++)
+		{
+			tt[i] = temp[i+1];
+		}
+
+		delete [] temp;
+		temp = tt;
+	}
+
+	return temp;
+}
 struct point
 {
 	string sign_coefficient;
@@ -16,11 +55,35 @@ struct point
 	int* bottom_power;
 	point* next;
 
-	point(string s1="+",string s2="+",string tc="1",string bc="1",string tp="1",string bp="1",point* p=NULL);
+	point(string s1,string s2,string tc,string bc,string tp,string bp,point* p);
+	point();
 	point(string sign_c,string sign_p,int* s_ct,int* s_cb,int* s_pt,int* s_pb,point* p = NULL);
+	friend point* operator*(const point& a,const point &b);
+	friend point* operator/(const point& a,const point &b);
 	void str_int(int id,string& st);
-	void copy_int(int* aim, int* t);
+	int* copy_int(int* t);
 };
+point* operator*(const point& a,const point& b)
+{
+	point* temp = new point();
+
+	if(a.sign_coefficient == b.sign_coefficient)
+	{
+		temp->sign_coefficient = "+";
+	}
+	else 
+	{
+		temp->sign_coefficient = "-";
+	}
+
+	
+	return temp;
+}
+point::point()
+{
+	sign_coefficient = "+";
+	sign_power = "+";
+}
 point::point(string s1,string s2,string tc,string bc,string tp,string bp,point* p)
 {
 	sign_coefficient=s1;
@@ -37,21 +100,22 @@ point::point(string sign_c,string sign_p,int* s_ct,int* s_cb,int* s_pt,int* s_pb
 	sign_coefficient = sign_c;
 	sign_coefficient = sign_p;
 	
-	copy_int(top_coefficient,s_ct);
-	copy_int(bottom_coefficient,s_cb);
-	copy_int(top_power,s_pt);
-	copy_int(bottom_power,s_pb);
+	top_coefficient = copy_int(s_ct);
+	bottom_coefficient = copy_int(s_cb);
+	top_power = copy_int(s_pt);
+	bottom_power= copy_int(s_pb);
 
 	next = p;
 }
-void point::copy_int(int* aim, int* t)
+int* point::copy_int(int* t)
 {
-	aim = new int[t[0]];
+	int* aim = new int[t[0]];
 	int i;
 	for(i=0;i<t[0];i++)
 	{
 		aim[i]=t[i];
 	}
+	return aim;
 }
 void point::str_int(int id,string& st)
 {
@@ -82,6 +146,7 @@ struct multi_data
 		void parse_str_data(string& t,string &s1,string &s2,string &s3,string &s4,string &s5,string &s6);
 		void parse_str_data_part(string &t,string &s1,string &s2,string& s3);
 		void push(string sign_c,string sign_p,int * i1,int* i2, int* i3,int* i4);
+		void push(point* p);
 		friend multi_data* operator+(const multi_data& m1,const multi_data& m2);
 		friend multi_data* operator-(const multi_data& m1,const multi_data& m2);
 		friend multi_data* operator*(const multi_data& m1,const multi_data& m2);
@@ -89,6 +154,11 @@ struct multi_data
 		point* pop();
 		~multi_data();
 };
+void multi_data::push(point* p)
+{
+	p->next = first->next;
+	first ->next = p;
+}
 multi_data* operator+(const multi_data& m1,const multi_data& m2)
 {
 	multi_data* temp = new multi_data();
@@ -184,14 +254,16 @@ void multi_data::parse_str_data(string& t,string &s1,string &s2,string &s3,strin
 void multi_data::push(string sign_c,string sign_p,string s_ct,string s_cb,string s_pt,string s_pb)
 {
 	point* p = new point(sign_c,sign_p,s_ct,s_cb,s_pt,s_pb);
-	p->next=first->next;
-	first->next=p;
+	push(p);
+	//p->next=first->next;
+	//first->next=p;
 }
 void multi_data::push(string sign_c,string sign_p,int * i1,int* i2, int* i3,int* i4)
 {
 	point* p = new point(sign_c,sign_p,i1,i2,i3,i4);
-	p->next = first->next;
-	first->next = p;
+	push(p);
+	//p->next = first->next;
+	//first->next = p;
 }
 
 point* multi_data::pop()
