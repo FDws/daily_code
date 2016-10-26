@@ -155,6 +155,95 @@ int* data_sub(int* a,int* b)
 
 	return temp;
 }
+int big_than(const int* a,const int* b)
+{
+	if(a[0]>b[0])
+	{
+		return 1;
+	}
+	else if(b[0]>a[0])
+	{
+		return 0;
+	}
+
+	int i=1;
+	while(i<a[0])
+	{
+		if(a[i]>b[i])
+		{
+			return 1;
+			break;
+		}
+		else if(a[i]<b[i])
+		{
+			return 0;
+			break;
+		}
+		i++;
+	}
+
+	return 0;
+}
+void simp(int* a,int* b)
+{
+	int* ta = new int[a[0]];
+	int* tb = new int[b[0]];
+	int* t;
+	int* x = new int[2];
+	int* y = new int[2];
+	int* ad = new int[2];
+	x[0] = y[0] = ad[0] = 2;
+	x[1] = ad[1] = 1;
+	y[1] = 0;
+
+	int i;
+	for(i=0;i<a[0];i++)
+	{
+		ta[i] = a[i];
+	}
+	for(i=0;i<b[0];i++)
+	{
+		tb[i] = b[i];
+	}
+
+	while(big_than(ta,tb)||big_than(tb,ta))
+	{
+		if(big_than(ta,tb))
+		{
+			t=data_sub(ta,tb);
+			delete [] ta;
+			ta = tb;
+			tb = t;
+		}
+		else 
+		{
+			t = data_sub(tb,ta);
+			delete [] tb;
+			tb = ta;
+			ta = t;
+		}
+	}
+
+	int* num;	
+	int* t1;
+	x = new int[a[0]];
+    for(i=0;i<a[0];i++)
+	{
+		x[i] = a[i];
+	}		
+
+
+	while(x[1])
+	{
+		t1 = data_sub(x,t);
+		delete [] x;
+		x = t1;
+		num = data_add(y,ad);
+		delete [] y;
+		y = num;
+	}
+	output(y);
+}
 int main()
 {
 	int n;
@@ -179,13 +268,17 @@ int main()
 		cin>>b[i];
 	}
 
-	output(data_sub(a,b));
-	int* c = data_multi(a,b);
-	cout<<"multi"<<endl;
-	output(c);
+	//cout<<"tewdkfj"<<endl;
+	//cout<<big_than(b,a)<<endl;
+	simp(a,b);
+	//cout<<"差 为:";
+	//output(data_sub(a,b));
+	//int* c = data_multi(a,b);
+	//cout<<"积为";
+	//output(c);
 
-	cout<<"add"<<endl;
-	output(data_add(a,b));
+	//cout<<"和为";
+	//output(data_add(a,b));
 
 
 	return 0;

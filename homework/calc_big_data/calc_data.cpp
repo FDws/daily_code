@@ -2,6 +2,29 @@
 #include<cstring>
 using namespace std;
 
+int big_than(const int* a,const int* b)
+{
+	if(a[0]>b[0])
+	{
+		return 1;
+	}
+	else if(b[0]>a[0])
+	{
+		return 0;
+	}
+
+	int i = 1;
+	while(i<a[0])
+	{
+		if(a[i]>b[i])
+		{
+			return 1;
+			break;
+		}
+		i++;
+	}
+	return 0;
+}
 int* data_multi(const int* a,const int* b)
 {
 	int * temp = new int[a[0]+b[0]-1]();
@@ -161,7 +184,6 @@ struct point
 	point();
 	point(string sign_c,string sign_p,int* s_ct,int* s_cb,int* s_pt,int* s_pb,point* p = NULL);
 	friend point* operator*(const point& a,const point &b);
-	friend point* operator/(const point& a,const point &b);
 	void str_int(int id,string& st);
 	int* copy_int(int* t);
 };
@@ -180,7 +202,45 @@ point* operator*(const point& a,const point& b)
 
 	temp->top_coefficient = data_multi(a.top_coefficient,b.top_coefficient);
 	temp->bottom_coefficient = data_multi(a.bottom_coefficient,b.bottom_coefficient);
+	temp->bottom_power = data_multi(a.bottom_power,b.bottom_power);
 
+	if(a.sign_power==b.sign_power)
+	{
+		temp->sign_power=a.sign_power;
+		temp->top_power = data_add(data_multi(a.top_power,b.bottom_power),data_multi(a.bottom_power,b.top_power));
+	}
+	else if(a.sign_power=="-")
+	{
+		int* x = data_multi(a.top_power,b.bottom_power);
+		int* y = data_multi(a.bottom_power,b.top_power);
+
+		if(big_than(x,y))
+		{
+			temp->sign_power = "-";
+			temp->top_power = data_sub(x,y);
+		}
+		else 
+		{
+			temp->sign_power = "+";
+			temp->top_power = data_sub(y,x);
+		}
+	}
+	else
+	{
+		int* x = data_multi(a.top_power,b.bottom_power);
+		int* y = data_multi(a.bottom_power,b.top_power);
+
+		if(big_than(x,y))
+		{
+			temp->sign_power = "+";
+			temp->top_power  = data_sub(x,y);
+		}
+		else
+		{
+			temp->sign_power = "-";
+			temp->top_power = data_sub(y,x);
+		}
+	}
 	
 	return temp;
 }
@@ -257,7 +317,8 @@ struct multi_data
 		friend multi_data* operator+(const multi_data& m1,const multi_data& m2);
 		friend multi_data* operator-(const multi_data& m1,const multi_data& m2);
 		friend multi_data* operator*(const multi_data& m1,const multi_data& m2);
-		friend multi_data* operator/(const multi_data& m1,const multi_data& m2);
+		friend ostream& operator<<(ostream& out,multi_data& a);
+		void arrange(multi_data* m);
 		point* pop();
 		~multi_data();
 };
@@ -325,9 +386,27 @@ multi_data* operator-(const multi_data& m1,const multi_data& m2)
 
 	return temp;
 }
-//multi_data* operator*(const multi_data& m1,const multi_data& m2)
-//multi_data* operator*(const multi_data& m1,const multi_data& m2)
-//multi_data* operator/(const multi_data& m1,const multi_data& m2)
+multi_data* operator*(const multi_data& m1,const multi_data& m2)
+{
+	multi_data* temp = new multi_data();
+
+	point* p1 = m1.first->next;
+	point* p2 = m2.first->next;
+
+	while(p1)
+	{
+		p2=m2.first->next;
+		while(p2)
+		{
+			temp->push((*p1)*(*p2));
+			p2=p2->next;
+		}
+		p1=p1->next;
+	}
+
+	return temp;
+
+}
 multi_data::multi_data()
 {
 	first = new point();
