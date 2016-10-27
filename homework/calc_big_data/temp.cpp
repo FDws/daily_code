@@ -184,17 +184,11 @@ int big_than(const int* a,const int* b)
 
 	return 0;
 }
-void simp(int* a,int* b)
+void simp(int*& a,int*& b)
 {
 	int* ta = new int[a[0]];
 	int* tb = new int[b[0]];
 	int* t;
-	int* x = new int[2];
-	int* y = new int[2];
-	int* ad = new int[2];
-	x[0] = y[0] = ad[0] = 2;
-	x[1] = ad[1] = 1;
-	y[1] = 0;
 
 	int i;
 	for(i=0;i<a[0];i++)
@@ -223,26 +217,56 @@ void simp(int* a,int* b)
 			ta = t;
 		}
 	}
+	delete [] ta;
+	t = tb;
 
-	int* num;	
-	int* t1;
-	x = new int[a[0]];
+	ta = new int[a[0]];
+	tb = new int[b[0]];
     for(i=0;i<a[0];i++)
 	{
-		x[i] = a[i];
+		ta[i] = a[i];
 	}		
-
-
-	while(x[1])
+	for(i=0;i<b[0];i++)
 	{
-		t1 = data_sub(x,t);
+		tb[i] = b[i];
+	}
+
+
+	int* num;
+	int* t1;
+	int* x = new int[2];
+	int* ad = new int[2];
+	x[0]=ad[0]=2;
+	x[1]=0;
+	ad[1] = 1;
+
+	while(ta[1])
+	{
+		t1 = data_sub(ta,t);
+		delete [] ta;
+		ta = t1;
+		num = data_add(x,ad);
 		delete [] x;
-		x = t1;
+		x = num;
+	}
+	a = x;
+
+	int* y = new int[2];
+	y[0]=2;
+	y[1]=0;
+
+	while(tb[1])
+	{
+		t1 = data_sub(tb,t);
+		delete [] tb;
+		tb = t1;
+
 		num = data_add(y,ad);
 		delete [] y;
 		y = num;
 	}
-	output(y);
+	b = y;
+	delete [] ad;
 }
 int main()
 {
@@ -271,6 +295,8 @@ int main()
 	//cout<<"tewdkfj"<<endl;
 	//cout<<big_than(b,a)<<endl;
 	simp(a,b);
+	output(a);
+	output(b);
 	//cout<<"差 为:";
 	//output(data_sub(a,b));
 	//int* c = data_multi(a,b);

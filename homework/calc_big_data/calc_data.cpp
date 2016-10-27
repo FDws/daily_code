@@ -13,7 +13,7 @@ int big_than(const int* a,const int* b)
 		return 0;
 	}
 
-	int i = 1;
+	int i=1;
 	while(i<a[0])
 	{
 		if(a[i]>b[i])
@@ -21,8 +21,14 @@ int big_than(const int* a,const int* b)
 			return 1;
 			break;
 		}
+		else if(a[i]<b[i])
+		{
+			return 0;
+			break;
+		}
 		i++;
 	}
+
 	return 0;
 }
 int* data_multi(const int* a,const int* b)
@@ -169,6 +175,91 @@ int* data_sub(const int* a,const int* b)
 	}
 
 	return temp;
+}
+
+void simp(int*& a,int*& b)
+{
+	int* ta = new int[a[0]];
+	int* tb = new int[b[0]];
+	int* t;
+
+	int i;
+	for(i=0;i<a[0];i++)
+	{
+		ta[i] = a[i];
+	}
+	for(i=0;i<b[0];i++)
+	{
+		tb[i] = b[i];
+	}
+
+	while(big_than(ta,tb)||big_than(tb,ta))
+	{
+		if(big_than(ta,tb))
+		{
+			t=data_sub(ta,tb);
+			delete [] ta;
+			ta = tb;
+			tb = t;
+		}
+		else 
+		{
+			t = data_sub(tb,ta);
+			delete [] tb;
+			tb = ta;
+			ta = t;
+		}
+	}
+	delete [] ta;
+	t = tb;
+
+	ta = new int[a[0]];
+	tb = new int[b[0]];
+	for(i=0;i<a[0];i++)
+	{
+		ta[i] = a[i];
+	}		
+	for(i=0;i<b[0];i++)
+	{
+		tb[i] = b[i];
+	}
+
+
+	int* num;
+	int* t1;
+	int* x = new int[2];
+	int* ad = new int[2];
+	x[0]=ad[0]=2;
+	x[1]=0;
+	ad[1] = 1;
+
+	while(ta[1])
+	{
+		t1 = data_sub(ta,t);
+		delete [] ta;
+		ta = t1;
+		num = data_add(x,ad);
+		delete [] x;
+		x = num;
+	}
+	a = x;
+
+	int* y = new int[2];
+	y[0]=2;
+	y[1]=0;
+
+	while(tb[1])
+	{
+		t1 = data_sub(tb,t);
+		delete [] tb;
+		tb = t1;
+
+		num = data_add(y,ad);
+		delete [] y;
+		y = num;
+	}
+	b = y;
+	delete [] ad;
 }
 struct point
 {
@@ -318,10 +409,31 @@ struct multi_data
 		friend multi_data* operator-(const multi_data& m1,const multi_data& m2);
 		friend multi_data* operator*(const multi_data& m1,const multi_data& m2);
 		friend ostream& operator<<(ostream& out,multi_data& a);
-		void arrange(multi_data* m);
+		void arrange();
 		point* pop();
 		~multi_data();
 };
+void multi_data::arrange()
+{
+	point* temp = first->next;
+	point* pre = first;
+	while(temp)
+	{
+		if(temp->top_coefficient[1]==0)
+		{
+			pre->next = temp->next;
+			delete [] temp;
+			temp = pre->next;
+			continue;
+		}
+
+		simp(temp->top_coefficient,temp->bottom_coefficient);
+		simp(temp->top_power,temp->bottom_power);
+	}
+
+	
+}
+
 void multi_data::copy_point(const multi_data* a)
 {
 	first = new point();
