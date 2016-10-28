@@ -52,7 +52,7 @@ int* data_multi(const int* a,const int* b)
 	}
 	return temp;
 }
-int* data_add(int* a,int* b)
+inline int* data_add(int* a,int* b)
 {
 	int len = (a[0]>b[0]?a[0]+1:b[0]+1);
 	int* temp  = new int[len]();
@@ -155,7 +155,7 @@ int* data_sub(int* a,int* b)
 
 	return temp;
 }
-int big_than(const int* a,const int* b)
+inline int big_than(const int* a,const int* b)
 {
 	if(a[0]>b[0])
 	{
@@ -219,6 +219,8 @@ void simp(int*& a,int*& b)
 	}
 	delete [] ta;
 	t = tb;
+	cout<<"t is :";
+	output(t);
 
 	ta = new int[a[0]];
 	tb = new int[b[0]];
@@ -230,7 +232,8 @@ void simp(int*& a,int*& b)
 	{
 		tb[i] = b[i];
 	}
-
+	if(t[1]!=1)
+	{
 
 	int* num;
 	int* t1;
@@ -267,6 +270,7 @@ void simp(int*& a,int*& b)
 	}
 	b = y;
 	delete [] ad;
+	}
 }
 int main()
 {
@@ -291,20 +295,21 @@ int main()
 	{
 		cin>>b[i];
 	}
+	cout<<"input finish!!\ncalcing......"<<endl;
 
 	//cout<<"tewdkfj"<<endl;
 	//cout<<big_than(b,a)<<endl;
 	simp(a,b);
 	output(a);
 	output(b);
-	//cout<<"差 为:";
-	//output(data_sub(a,b));
-	//int* c = data_multi(a,b);
-	//cout<<"积为";
-	//output(c);
+	cout<<"差 为:";
+	output(data_sub(a,b));
+	int* c = data_multi(a,b);
+	cout<<"积为";
+	output(c);
 
-	//cout<<"和为";
-	//output(data_add(a,b));
+	cout<<"和为";
+	output(data_add(a,b));
 
 
 	return 0;

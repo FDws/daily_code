@@ -10,9 +10,10 @@ int main()
 	int i;
 	string s;
 
+	for(i=0;i<2;i++){
 	getline(cin,s);
 	s=s.substr(2);
-	parse_str(s);
+	parse_str(s);}
 
 	return 0;
 }
