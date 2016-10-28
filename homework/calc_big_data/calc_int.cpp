@@ -166,6 +166,7 @@ void equation::out_put()
 			}
 			else 
 			{
+				cout<<" djkflskjfab"<<te<<endl;
 				switch(te)
 				{
 					case '+': t = pop_numbers()+pop_numbers();

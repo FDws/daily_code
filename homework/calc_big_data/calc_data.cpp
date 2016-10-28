@@ -878,7 +878,7 @@ void calc_multi::push_sign(char a)
 	if(a!='#')
 	{
 		sign* temp =  new sign(a,sign_stack->next);
-		sign_stack->next = temp->next;
+		sign_stack->next = temp;
 	}
 }
 void calc_multi::push_number(const multi_data* a)
@@ -904,17 +904,19 @@ void calc_multi::output()
 		else
 		{
 			te = pop_sign();
+			cout<<"pop sign "<<te<<endl;
 			if(te=='('||big_than(expression[is],te))
 			{
 				push_sign(te);
 				push_sign(expression[is]);
+				cout<<"Push "<<te<<" "<<expression[is]<<endl;
 				is++;
 			}
 			else 
 			{
+				cout<<"kkkkkkkkkkkkkkkkkkkkkkkkkk"<<te<<endl;
 				switch(te)
 				{
-					cout<<te<<endl;
 					case '+': t = *pop_number()+*pop_number();
 							  break;
 					case '-': t = *pop_number()-*pop_number();
