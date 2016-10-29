@@ -219,58 +219,99 @@ void simp(int*& a,int*& b)
 	}
 	delete [] ta;
 	t = tb;
-	cout<<"t is :";
-	output(t);
-
-	ta = new int[a[0]];
-	tb = new int[b[0]];
-    for(i=0;i<a[0];i++)
+}
+int is_positive(int* a)
+{
+	int i;
+	for(i=1;i<a[0];i++)
 	{
-		ta[i] = a[i];
-	}		
-	for(i=0;i<b[0];i++)
-	{
-		tb[i] = b[i];
+		if(a[i]>0) return 1;
+		if(a[i]<0) return 0;
 	}
-	if(t[1]!=1)
+	
+	return -1;
+}
+int* copy_arry(const int* a)
+{
+	int i;
+	int* t = new int[a[0]];
+	for(i=0;i<a[0];i++)
 	{
+		t[i]=a[i];
+	}
 
-	int* num;
-	int* t1;
-	int* x = new int[2];
-	int* ad = new int[2];
-	x[0]=ad[0]=2;
-	x[1]=0;
-	ad[1] = 1;
+	return t;
+}
+void change_simp( int*& a,const int* t)
+{
+	int* save_a = new int[a[0]];
+	save_a[0] = a[0];
+	int* mu = new int[2];
+	mu[0]=2;
+	mu[1]=0;
 
-	while(ta[1])
+
+	int* be_ch = new int[t[0]+1];
+	be_ch[0]=t[0]+1;
+	be_ch[1]=0;
+	int i;
+	for(i=2;i<t[0];i++)
 	{
-		t1 = data_sub(ta,t);
-		delete [] ta;
-		ta = t1;
-		num = data_add(x,ad);
-		delete [] x;
-		x = num;
+		be_ch[i]=a[i-1];
 	}
-	a = x;
 
-	int* y = new int[2];
-	y[0]=2;
-	y[1]=0;
+	int* yu = new int[t[0]+1];
+	yu[0] = t[0]+1;
+	int* c_yu = NULL;
 
-	while(tb[1])
+	int* ch_ji;
+	int ia_now = t[0]-1;
+
+	while(ia_now<a[0])
 	{
-		t1 = data_sub(tb,t);
-		delete [] tb;
-		tb = t1;
+		for(i=0;i<9;i++)
+		{
+			if(c_yu) delete [] c_yu;
+			c_yu = copy_arry(yu);
 
-		num = data_add(y,ad);
-		delete [] y;
-		y = num;
+			mu[1] = i;
+			ch_ji=data_multi(mu,t);
+			int ii;
+
+			for(ii=1;ii<t[0]+1;ii++)
+			{
+				int c = ch_ji[0]-ii;
+				if(c<1)
+				{
+					c=0;
+				}
+				else 
+				{
+					c = ch_ji[ch_ji[0]-ii];
+				}
+				yu[yu[0]-ii]=be_ch[be_ch[0]-ii]-c;
+			}
+			if(!is_positive(yu))
+			{
+				save_a[ia_now] = i-1;
+				break;
+			}
+		}
+		for(i=0;i<yu[0];i++)
+		{
+			be_ch[i] = c_yu[i];
+		}
+		delete [] c_yu;
+		for(i=1;i<be_ch[0]-1;i++)
+		{
+			be_ch[i] = be_ch[i+1];
+		}
+		ia_now++;
+		be_ch[i] = a[ia_now];
 	}
-	b = y;
-	delete [] ad;
-	}
+
+	delete [] a;
+	a = save_a;
 }
 int main()
 {
@@ -297,19 +338,22 @@ int main()
 	}
 	cout<<"input finish!!\ncalcing......"<<endl;
 
-	//cout<<"tewdkfj"<<endl;
-	//cout<<big_than(b,a)<<endl;
-	simp(a,b);
+	change_simp(a,b);
 	output(a);
 	output(b);
-	cout<<"差 为:";
-	output(data_sub(a,b));
-	int* c = data_multi(a,b);
-	cout<<"积为";
-	output(c);
+	//cout<<"tewdkfj"<<endl;
+	//cout<<big_than(b,a)<<endl;
+	//simp(a,b);
+	//output(a);
+	//output(b);
+	//cout<<"差 为:";
+	//output(data_sub(a,b));
+	//int* c = data_multi(a,b);
+	//cout<<"积为";
+	//output(c);
 
-	cout<<"和为";
-	output(data_add(a,b));
+	//cout<<"和为";
+	//output(data_add(a,b));
 
 
 	return 0;

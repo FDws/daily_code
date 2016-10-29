@@ -302,10 +302,17 @@ struct point
 	friend point* operator*(const point& a,const point &b);
 	void str_int(int id,string& st);
 	int* copy_int(int* t);
+	~point()
+	{
+		delete [] top_power;
+		delete [] top_coefficient;
+		delete [] bottom_power;
+		delete [] bottom_coefficient;
+	}
 };
 point* operator*(const point& a,const point& b)
 {
-	cout<<"Point * begin"<<endl;
+	//cout<<"Point * begin"<<endl;
 	point* temp = new point();
 
 	if(a.sign_coefficient == b.sign_coefficient)
@@ -359,7 +366,7 @@ point* operator*(const point& a,const point& b)
 		}
 	}
 	
-	cout<<"Point * done"<<endl;
+	//cout<<"Point * done"<<endl;
 	return temp;
 }
 point::point()
@@ -383,7 +390,7 @@ point::point(string s1,string s2,string tc,string bc,string tp,string bp,point* 
 point::point(string sign_c,string sign_p,int* s_ct,int* s_cb,int* s_pt,int* s_pb,point* p)
 {
 	sign_coefficient = sign_c;
-	sign_coefficient = sign_p;
+	sign_power= sign_p;
 	
 	top_coefficient = copy_int(s_ct);
 	bottom_coefficient = copy_int(s_cb);
@@ -395,19 +402,19 @@ point::point(string sign_c,string sign_p,int* s_ct,int* s_cb,int* s_pt,int* s_pb
 }
 int* point::copy_int(int* t)
 {
-	cout<<"copy_int begin"<<endl;;
+	//cout<<"copy_int begin"<<endl;;
 	int* aim = new int[t[0]];
 	int i;
 	for(i=0;i<t[0];i++)
 	{
 		aim[i]=t[i];
 	}
-	cout<<"copy int done"<<endl;
+	//cout<<"copy int done"<<endl;
 	return aim;
 }
 void point::str_int(int id,string& st)
 {
-	cout<<"str_int begin "<<endl;
+	//cout<<"str_int begin "<<endl;
 	int* te=new int[st.length()+1];//The first position save the length of this data;
 	te[0]=st.length()+1;
 	
@@ -424,7 +431,7 @@ void point::str_int(int id,string& st)
 		case 3:top_power=te;break;
 		case 4:bottom_power=te;break;
 	}
-	cout<<"str int done"<<endl;
+	//cout<<"str int done"<<endl;
 }
 struct multi_data
 {
@@ -448,10 +455,10 @@ struct multi_data
 };
 ostream& operator<<(ostream& out,multi_data& a)
 {
-	cout<<" cout << begin "<<endl;
+	//cout<<" cout << begin "<<endl;
 	a.arrange();
 	point* temp = a.first->next;
-	if(temp) cout<<"temp make done"<<endl;
+	//if(temp) cout<<"temp make done"<<endl;
 	while(temp)
 	{
 		if(temp->sign_coefficient=="+")
@@ -491,30 +498,16 @@ ostream& operator<<(ostream& out,multi_data& a)
 			output(temp->bottom_power);
 		}
 		temp = temp->next;
-		cout<<" ";
+		out<<" ";
 	}
 
-	cout<<" cout << done"<<endl;
+	//cout<<" cout << done"<<endl;
 	return out;
 }
 void multi_data::arrange()
 {
-	cout<<"start arrange"<<endl;
 	point* temp = first->next;
 	point* pre = first;
-	//while(temp)
-	//{
-	//	if(temp->top_coefficient[1]==0)
-	//	{
-	//		pre->next = temp->next;
-	//		delete [] temp;
-	//		temp = pre->next;
-	//		continue;
-	//	}
-
-	//	simp(temp->top_coefficient,temp->bottom_coefficient);
-	//	simp(temp->top_power,temp->bottom_power);
-	//}
 
 	point* second = first->next;
 	point* move = second;
@@ -535,7 +528,8 @@ void multi_data::arrange()
 		{
 			if(temp->next==NULL||(move->sign_power=="+"&&temp->next->sign_power=="-")||
 			  (move->sign_power=="+"&&big_than(data_multi(move->top_power,temp->next->bottom_power),data_multi(move->bottom_power,temp->next->top_power)))||
-			  (move->sign_power=="-"&&big_than(data_multi(move->bottom_power,temp->next->top_power),data_multi(move->top_power,temp->next->bottom_power))))
+			  (move->sign_power=="-"&&temp->sign_power=="-"&&big_than(data_multi(move->bottom_power,temp->next->top_power),
+																	  data_multi(move->top_power,temp->next->bottom_power))))
 			{
 				move->next =  temp->next;
 				temp->next = move;
@@ -544,22 +538,119 @@ void multi_data::arrange()
 			temp = temp->next;
 		}
 	}
-	cout<<"arrange finish"<<endl;
+
+	pre = first->next;
+	temp = pre->next;;
+	int* t1;
+	int* t2;
+	int* t3;
+	int* t4;
+	while(temp)
+	{
+		if(temp->sign_power==pre->sign_power&&!big_than(temp->top_power,pre->top_power)&&!big_than(temp->bottom_power,pre->bottom_power)
+											&&!big_than(pre->top_power,temp->top_power)&&!big_than(pre->bottom_power,temp->bottom_power))
+		{
+			if(temp->sign_coefficient==pre->sign_coefficient)
+			{
+				t1 = data_multi(temp->top_coefficient,pre->bottom_coefficient);
+				t2 = data_multi(temp->bottom_coefficient,pre->top_coefficient);
+				t3 = data_add(t1,t2);
+				t4 = data_multi(temp->bottom_coefficient,pre->bottom_coefficient);
+
+				delete [] pre->top_coefficient;	
+				delete [] pre->bottom_coefficient;
+				delete [] t1;
+				delete [] t2;
+
+				pre->top_coefficient = t3;
+				pre->bottom_coefficient = t4;
+
+				pre->next = temp->next;
+				delete temp;
+				temp = pre->next;
+				continue;
+			}
+			else if(pre->sign_coefficient=="+")
+			{
+				t1 = data_multi(pre->top_coefficient,temp->bottom_coefficient);
+				t2 = data_multi(pre->bottom_coefficient,temp->top_coefficient);
+				t3 = data_multi(pre->bottom_coefficient,temp->bottom_coefficient);
+
+				if(big_than(t1,t2))
+				{
+					pre->sign_coefficient="+";
+					t4 = data_sub(t1,t2);
+				}
+				else
+				{
+					pre->sign_coefficient="-";
+					t4 = data_sub(t2,t1);
+				}
+
+				delete [] pre->top_coefficient;
+				delete [] pre->bottom_coefficient;
+				delete [] t1;
+				delete [] t2;
+
+				pre->top_coefficient = t4;
+				pre->bottom_coefficient = t3;
+
+				pre->next = temp->next;
+				delete temp;
+				temp = pre->next;
+				continue;
+			}	
+			else if(pre->sign_coefficient == "-")
+			{
+
+				t1 = data_multi(pre->top_coefficient,temp->bottom_coefficient);
+				t2 = data_multi(pre->bottom_coefficient,temp->top_coefficient);
+				t3 = data_multi(pre->bottom_coefficient,temp->bottom_coefficient);
+				
+				if(big_than(t2,t1))
+				{
+					pre->sign_coefficient="+";
+					t4 = data_sub(t2,t1);
+				}
+				else
+				{
+					pre->sign_coefficient="-";
+					t4 = data_sub(t1,t2);
+				}
+				
+				delete [] pre->top_coefficient;
+				delete [] pre->bottom_coefficient;
+				delete [] t1;
+				delete [] t2;
+				
+				pre->top_coefficient = t4;
+				pre->bottom_coefficient = t3;
+				
+				pre->next = temp->next;
+				delete temp;
+				temp = pre->next;
+				continue;
+			}
+		}
+		pre = temp;
+		temp = temp->next;
+	}
+
 }
 
 void multi_data::copy_point(const multi_data* a)
 {
-	cout<<"copy point start"<<endl;
+	//cout<<"copy point start"<<endl;
 
 	first = new point();
 	point* temp = a->first->next;
 	while(temp)
 	{
-		cout<<"copy_point sign "<<temp->sign_coefficient<<"llll"<<temp->sign_power<<endl;
+	//	cout<<"copy_point sign "<<temp->sign_coefficient<<"llll"<<temp->sign_power<<endl;
 		push(temp->sign_coefficient,temp->sign_power,temp->top_coefficient,temp->bottom_coefficient,temp->top_power,temp->bottom_power);
 		temp = temp->next;
 	}
-	cout<<" copy_point done"<<endl;
+	//cout<<" copy_point done"<<endl;
 }
 void multi_data::push(point* p)
 {
@@ -568,13 +659,13 @@ void multi_data::push(point* p)
 }
 multi_data* operator+(const multi_data& m1,const multi_data& m2)
 {
-	cout<<"multi_data +  start"<<endl;
+	//cout<<"multi_data +  start"<<endl;
 	multi_data* temp = new multi_data();
 
 	point* t = m1.first->next;
 	while(t)
 	{
-		cout<<"s_C"<<t->sign_coefficient<<" S_P"<<t->sign_power<<"done"<<endl;
+	//	cout<<"s_C"<<t->sign_coefficient<<" S_P"<<t->sign_power<<"done"<<endl;
 		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
 		t = t->next;
 	}
@@ -582,17 +673,17 @@ multi_data* operator+(const multi_data& m1,const multi_data& m2)
 	t = m2.first->next;
 	while(t)
 	{
-		cout<<"s_C"<<t->sign_coefficient<<" S_P"<<t->sign_power<<"done"<<endl;
+	//	cout<<"s_C"<<t->sign_coefficient<<" S_P"<<t->sign_power<<"done"<<endl;
 		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
 		t = t->next;
 	}
-	cout<<"multi_data + done"<<endl;
+	//cout<<"multi_data + done"<<endl;
 	return temp;
 }
 
 multi_data* operator-(const multi_data& m1,const multi_data& m2)
 {
-	cout<<"multi_data - begin "<<endl;
+	//cout<<"multi_data - begin "<<endl;
 
 	multi_data* temp = new multi_data();
 	point* t = m1.first->next;
@@ -619,12 +710,12 @@ multi_data* operator-(const multi_data& m1,const multi_data& m2)
 
 	}
 
-	cout<<"multi_data - done"<<endl;
+	//cout<<"multi_data - done"<<endl;
 	return temp;
 }
 multi_data* operator*(const multi_data& m1,const multi_data& m2)
 {
-	cout<<"multi_data * start"<<endl;
+	//cout<<"multi_data * start"<<endl;
 	multi_data* temp = new multi_data();
 	point* p1;
 	point* p2;
@@ -642,7 +733,7 @@ multi_data* operator*(const multi_data& m1,const multi_data& m2)
 		p1=p1->next;
 	}
 
-	cout<<"multi_data * done"<<endl;
+	//cout<<"multi_data * done"<<endl;
 	return temp;
 
 }
@@ -695,7 +786,6 @@ void multi_data::parse_str_data(string& t,string &s1,string &s2,string &s3,strin
 void multi_data::push(string sign_c,string sign_p,string s_ct,string s_cb,string s_pt,string s_pb)
 {
 	point* p = new point(sign_c,sign_p,s_ct,s_cb,s_pt,s_pb);
-	cout<<"new point"<<sign_c<<"ddd"<<sign_p<<endl;
 	push(p);
 	//p->next=first->next;
 	//first->next=p;
@@ -869,10 +959,10 @@ void calc_multi::input()
 		getline(cin,s);
 		s = s.substr(2);
 		mul[j].input(s);		
-		cout<<mul[j]<<endl;
+	//	cout<<mul[j]<<endl;
 	}
 	
-	cout<<"input finish"<<endl;
+	//cout<<"input finish"<<endl;
 }
 void calc_multi::push_sign(char a)
 {
@@ -887,7 +977,7 @@ void calc_multi::push_number(const multi_data* a)
 	multi_data* t = new multi_data();
 	t->copy_point(a);
 	t->next = number_stack->next;
-	cout<<*t<<endl;
+	//cout<<*t<<endl;
 	number_stack->next = t;
 }
 void calc_multi::output()
@@ -899,24 +989,24 @@ void calc_multi::output()
 	{
 		if(expression[is]>='A'&&expression[is]<='Z')
 		{
-			cout<<"push number mul["<<expression[is]-'A'<<"]"<<endl;
+	//		cout<<"push number mul["<<expression[is]-'A'<<"]"<<endl;
 			push_number(&mul[expression[is]-'A']);
 			is++;
 		}
 		else
 		{
 			te = pop_sign();
-			cout<<"pop sign "<<te<<endl;
+	//		cout<<"pop sign "<<te<<endl;
 			if(te=='('||big_than(expression[is],te))
 			{
 				push_sign(te);
 				push_sign(expression[is]);
-				cout<<"Push "<<te<<" "<<expression[is]<<endl;
+	//			cout<<"Push "<<te<<" "<<expression[is]<<endl;
 				is++;
 			}
 			else 
 			{
-				cout<<"kkkkkkkkkkkkkkkkkkkkkkkkkk"<<te<<endl;
+	//			cout<<"kkkkkkkkkkkkkkkkkkkkkkkkkk"<<te<<endl;
 				switch(te)
 				{
 					case '+': t = *pop_number()+*pop_number();
@@ -926,7 +1016,7 @@ void calc_multi::output()
 					case '*': t = *pop_number()**pop_number();
 							  break;
 				}
-				cout<<"calc push_number t"<<endl;
+	//			cout<<"calc push_number t"<<endl;
 				push_number(t);
 
 				if(sign_stack->next == NULL&&expression[is]=='#')
