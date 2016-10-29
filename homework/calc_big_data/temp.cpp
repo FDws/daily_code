@@ -242,76 +242,154 @@ int* copy_arry(const int* a)
 
 	return t;
 }
-void change_simp( int*& a,const int* t)
+//void change_simp( int*& a,const int* t)
+//{
+//	int* save_a = new int[a[0]];
+//	save_a[0] = a[0];
+//	int* mu = new int[2];
+//	mu[0]=2;
+//	mu[1]=0;
+//
+//
+//	int* be_ch = new int[t[0]+1];
+//	be_ch[0]=t[0]+1;
+//	be_ch[1]=0;
+//	int i;
+//	for(i=2;i<t[0];i++)
+//	{
+//		be_ch[i]=a[i-1];
+//	}
+//
+//	int* yu = new int[t[0]+1];
+//	yu[0] = t[0]+1;
+//	int* c_yu = NULL;
+//
+//	int* ch_ji;
+//	int ia_now = t[0]-1;
+//
+//	while(ia_now<a[0])
+//	{
+//		for(i=0;i<9;i++)
+//		{
+//			if(c_yu) delete [] c_yu;
+//			c_yu = copy_arry(yu);
+//
+//			mu[1] = i;
+//			ch_ji=data_multi(mu,t);
+//			int ii;
+//
+//			for(ii=1;ii<t[0]+1;ii++)
+//			{
+//				int c = ch_ji[0]-ii;
+//				if(c<1)
+//				{
+//					c=0;
+//				}
+//				else 
+//				{
+//					c = ch_ji[ch_ji[0]-ii];
+//				}
+//				yu[yu[0]-ii]=be_ch[be_ch[0]-ii]-c;
+//			}
+//			if(!is_positive(yu))
+//			{
+//				save_a[ia_now] = i-1;
+//				break;
+//			}
+//		}
+//		for(i=0;i<yu[0];i++)
+//		{
+//			be_ch[i] = c_yu[i];
+//		}
+//		delete [] c_yu;
+//		for(i=1;i<be_ch[0]-1;i++)
+//		{
+//			be_ch[i] = be_ch[i+1];
+//		}
+//		ia_now++;
+//		be_ch[i] = a[ia_now];
+//	}
+//
+//	delete [] a;
+//	a = save_a;
+//}
+void change_length(int*& a,int len)
 {
-	int* save_a = new int[a[0]];
-	save_a[0] = a[0];
-	int* mu = new int[2];
-	mu[0]=2;
-	mu[1]=0;
-
-
-	int* be_ch = new int[t[0]+1];
-	be_ch[0]=t[0]+1;
-	be_ch[1]=0;
+	int* tt = new int[len];
 	int i;
-	for(i=2;i<t[0];i++)
+	tt[0] = len;
+	int min_l = len>a[0]?a[0]:len;
+	for(i=1;i<min_l;i++)
 	{
-		be_ch[i]=a[i-1];
+		tt[tt[0]-i] = a[a[0]-i];
 	}
-
-	int* yu = new int[t[0]+1];
-	yu[0] = t[0]+1;
-	int* c_yu = NULL;
-
-	int* ch_ji;
-	int ia_now = t[0]-1;
-
-	while(ia_now<a[0])
+	
+	delete [] a;
+	a = tt;
+}
+void change_simp(int* a,int * t,int si)
+{
+	cout<<"looping...\n"<<endl;
+	output(a);
+	output(t);
+	if(a[1]||a[0]>2)
 	{
-		for(i=0;i<9;i++)
+		int q;
+		if(si||a[0]==t[0])
 		{
-			if(c_yu) delete [] c_yu;
-			c_yu = copy_arry(yu);
+			q = 2;
+		}
+		else 
+		{
+			q = 1;
+		}
+		int* te = new int[a[0]-t[0]+q]();
+		int* t1;
+		te[0] = a[0]-t[0]+q;
+		cout<<"te len"<<te[0]<<endl;
+		int i;
+		int x;
+	
+		cout<<"te begin ";
+		output(te);
 
-			mu[1] = i;
-			ch_ji=data_multi(mu,t);
-			int ii;
-
-			for(ii=1;ii<t[0]+1;ii++)
+		for(i=1;i<=10;i++)
+		{
+			te[1]=i;
+			cout<<"te";
+			output(te);
+			t1 = data_multi(te,t);
+			if(big_than(t1,a))
 			{
-				int c = ch_ji[0]-ii;
-				if(c<1)
-				{
-					c=0;
-				}
-				else 
-				{
-					c = ch_ji[ch_ji[0]-ii];
-				}
-				yu[yu[0]-ii]=be_ch[be_ch[0]-ii]-c;
-			}
-			if(!is_positive(yu))
-			{
-				save_a[ia_now] = i-1;
+				x = i-1;
 				break;
 			}
 		}
-		for(i=0;i<yu[0];i++)
+		cout<<"one number is "<<x<<endl;
+		te[1] = x;
+		a = data_sub(a,data_multi(te,t));
+		if(a[0]<te[0]-1)
 		{
-			be_ch[i] = c_yu[i];
+			change_length(a,te[0]-1);
 		}
-		delete [] c_yu;
-		for(i=1;i<be_ch[0]-1;i++)
-		{
-			be_ch[i] = be_ch[i+1];
-		}
-		ia_now++;
-		be_ch[i] = a[ia_now];
-	}
 
-	delete [] a;
-	a = save_a;
+		if(x) 
+		{
+			si=1;
+		}
+		else
+		{
+			si=0;
+			if(a[1]==0)
+			{
+				change_length(a,a[0]-1);
+			}
+		}
+
+		cout<<"a ";
+		output(a);
+		change_simp(a,t,si);
+	}
 }
 int main()
 {
@@ -338,9 +416,8 @@ int main()
 	}
 	cout<<"input finish!!\ncalcing......"<<endl;
 
-	change_simp(a,b);
-	output(a);
-	output(b);
+	change_simp(a,b,1);
+	//output(a);
 	//cout<<"tewdkfj"<<endl;
 	//cout<<big_than(b,a)<<endl;
 	//simp(a,b);
