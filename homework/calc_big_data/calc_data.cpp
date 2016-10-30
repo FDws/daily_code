@@ -201,91 +201,92 @@ int* data_sub(const int* a,const int* b)
 
 	return temp;
 }
+void change_simp(int*& a,const int* t);
+void simp(int*& a,int*& b)
+{
+	int* ta = new int[a[0]];
+	int* tb = new int[b[0]];
+	int* t;
 
-//void simp(int*& a,int*& b)
-//{
-//	int* ta = new int[a[0]];
-//	int* tb = new int[b[0]];
-//	int* t;
-//
-//	int i;
-//	for(i=0;i<a[0];i++)
-//	{
-//		ta[i] = a[i];
-//	}
-//	for(i=0;i<b[0];i++)
-//	{
-//		tb[i] = b[i];
-//	}
-//
-//	while(big_than(ta,tb)||big_than(tb,ta))
-//	{
-//		if(big_than(ta,tb))
-//		{
-//			t=data_sub(ta,tb);
-//			delete [] ta;
-//			ta = tb;
-//			tb = t;
-//		}
-//		else 
-//		{
-//			t = data_sub(tb,ta);
-//			delete [] tb;
-//			tb = ta;
-//			ta = t;
-//		}
-//	}
-//	delete [] ta;
-//	t = tb;
-//
-//	ta = new int[a[0]];
-//	tb = new int[b[0]];
-//	for(i=0;i<a[0];i++)
-//	{
-//		ta[i] = a[i];
-//	}		
-//	for(i=0;i<b[0];i++)
-//	{
-//		tb[i] = b[i];
-//	}
-//
-//
-//	int* num;
-//	int* t1;
-//	int* x = new int[2];
-//	int* ad = new int[2];
-//	x[0]=ad[0]=2;
-//	x[1]=0;
-//	ad[1] = 1;
-//
-//	while(ta[1])
-//	{
-//		t1 = data_sub(ta,t);
-//		delete [] ta;
-//		ta = t1;
-//		num = data_add(x,ad);
-//		delete [] x;
-//		x = num;
-//	}
-//	a = x;
-//
-//	int* y = new int[2];
-//	y[0]=2;
-//	y[1]=0;
-//
-//	while(tb[1])
-//	{
-//		t1 = data_sub(tb,t);
-//		delete [] tb;
-//		tb = t1;
-//
-//		num = data_add(y,ad);
-//		delete [] y;
-//		y = num;
-//	}
-//	b = y;
-//	delete [] ad;
-//}
+	int i;
+	for(i=0;i<a[0];i++)
+	{
+		ta[i] = a[i];
+	}
+	for(i=0;i<b[0];i++)
+	{
+		tb[i] = b[i];
+	}
+	output(ta);
+	output(tb);
+
+	while(big_than(ta,tb)||big_than(tb,ta))
+	{
+		if(big_than(ta,tb))
+		{
+			t=data_sub(ta,tb);
+			delete [] ta;
+			ta = tb;
+			tb = t;
+		}
+		else 
+		{
+			t = data_sub(tb,ta);
+			delete [] tb;
+			tb = ta;
+			ta = t;
+		}
+	}
+	delete [] ta;
+	t = tb;
+
+	change_simp(a,t);
+	change_simp(b,t);
+}
+void change_simp(int*& a,const int* t)
+{
+	int* te = new int[a[0]];
+	te[0] = a[0];
+	int i;
+	int* tt;
+	for(i=1;i<te[0];i++)
+	{
+		te[i] = 9;
+	}
+
+	int i_now = 1;
+	while(i_now<a[0])
+	{
+		tt = data_multi(t,te);
+		while(big_than(tt,a)&&te[i_now])
+		{
+			delete [] tt;
+			te[i_now] = te[i_now]-1;
+			tt = data_multi(t,te);
+		}
+		if(big_than(a,tt))
+		{
+			te[i_now] = te[i_now]+1;
+		}
+		i_now++;
+	}
+
+	while(!te[1]&&te[0]>2)
+	{
+		tt = new int[te[0]-1];
+		tt[0] = te[0]-1;
+	
+		for(i=1;i<tt[0];i++)
+		{
+			tt[i] = te[i+1];
+		}
+		delete [] te;
+		te = tt;
+	}
+
+	delete [] a;
+	a = te;
+}
 struct point
 {
 	string sign_coefficient;
@@ -507,7 +508,6 @@ ostream& operator<<(ostream& out,multi_data& a)
 void multi_data::arrange()
 {
 	point* temp = first->next;
-	point* pre = first;
 
 	point* second = first->next;
 	point* move = second;
@@ -539,7 +539,7 @@ void multi_data::arrange()
 		}
 	}
 
-	pre = first->next;
+	point* pre = first->next;
 	temp = pre->next;;
 	int* t1;
 	int* t2;
@@ -636,11 +636,33 @@ void multi_data::arrange()
 		temp = temp->next;
 	}
 
+	
+	temp = first->next;
+	while(temp)
+	{
+		cout<<"pre ";
+		output(temp->top_coefficient);
+		cout<<" ";
+		output(temp->bottom_coefficient);
+		cout<<endl;
+
+		simp(temp->top_coefficient,temp->bottom_coefficient);
+
+		cout<<"done ";
+		output(temp->top_coefficient);
+		cout<<" ";
+		output(temp->bottom_coefficient);
+		cout<<endl;
+
+		simp(temp->top_power,temp->bottom_power);
+		temp = temp->next;
+	}
+
 }
 
 void multi_data::copy_point(const multi_data* a)
 {
-	//cout<<"copy point start"<<endl;
+	cout<<"copy point start"<<endl;
 
 	first = new point();
 	point* temp = a->first->next;
@@ -650,7 +672,7 @@ void multi_data::copy_point(const multi_data* a)
 		push(temp->sign_coefficient,temp->sign_power,temp->top_coefficient,temp->bottom_coefficient,temp->top_power,temp->bottom_power);
 		temp = temp->next;
 	}
-	//cout<<" copy_point done"<<endl;
+	cout<<" copy_point done"<<endl;
 }
 void multi_data::push(point* p)
 {
@@ -659,7 +681,7 @@ void multi_data::push(point* p)
 }
 multi_data* operator+(const multi_data& m1,const multi_data& m2)
 {
-	//cout<<"multi_data +  start"<<endl;
+	cout<<"multi_data +  start"<<endl;
 	multi_data* temp = new multi_data();
 
 	point* t = m1.first->next;
@@ -677,7 +699,7 @@ multi_data* operator+(const multi_data& m1,const multi_data& m2)
 		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
 		t = t->next;
 	}
-	//cout<<"multi_data + done"<<endl;
+	cout<<"multi_data + done"<<endl;
 	return temp;
 }
 
@@ -959,10 +981,10 @@ void calc_multi::input()
 		getline(cin,s);
 		s = s.substr(2);
 		mul[j].input(s);		
-	//	cout<<mul[j]<<endl;
+		cout<<mul[j]<<endl;
 	}
 	
-	//cout<<"input finish"<<endl;
+	cout<<"input finish"<<endl;
 }
 void calc_multi::push_sign(char a)
 {
@@ -989,24 +1011,24 @@ void calc_multi::output()
 	{
 		if(expression[is]>='A'&&expression[is]<='Z')
 		{
-	//		cout<<"push number mul["<<expression[is]-'A'<<"]"<<endl;
+			cout<<"push number mul["<<expression[is]-'A'<<"]"<<endl;
 			push_number(&mul[expression[is]-'A']);
 			is++;
 		}
 		else
 		{
 			te = pop_sign();
-	//		cout<<"pop sign "<<te<<endl;
+			cout<<"pop sign "<<te<<endl;
 			if(te=='('||big_than(expression[is],te))
 			{
 				push_sign(te);
 				push_sign(expression[is]);
-	//			cout<<"Push "<<te<<" "<<expression[is]<<endl;
+				cout<<"Push "<<te<<" "<<expression[is]<<endl;
 				is++;
 			}
 			else 
 			{
-	//			cout<<"kkkkkkkkkkkkkkkkkkkkkkkkkk"<<te<<endl;
+				cout<<"kkkkkkkkkkkkkkkkkkkkkkkkkk"<<te<<endl;
 				switch(te)
 				{
 					case '+': t = *pop_number()+*pop_number();
@@ -1016,7 +1038,7 @@ void calc_multi::output()
 					case '*': t = *pop_number()**pop_number();
 							  break;
 				}
-	//			cout<<"calc push_number t"<<endl;
+				cout<<"calc push_number t"<<endl;
 				push_number(t);
 
 				if(sign_stack->next == NULL&&expression[is]=='#')
