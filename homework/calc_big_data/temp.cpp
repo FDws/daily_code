@@ -187,42 +187,45 @@ inline int big_than(const int* a,const int* b)
 }
 void simp(int*& a,int*& b)
 {
-	int* ta = new int[a[0]];
-	int* tb = new int[b[0]];
-	int* t;
+	if(a[1]!=0)
+	{
+		int* ta = new int[a[0]];
+		int* tb = new int[b[0]];
+		int* t;
 
-	int i;
-	for(i=0;i<a[0];i++)
-	{
-		ta[i] = a[i];
-	}
-	for(i=0;i<b[0];i++)
-	{
-		tb[i] = b[i];
-	}
-
-	while(big_than(ta,tb)||big_than(tb,ta))
-	{
-		if(big_than(ta,tb))
+		int i;
+		for(i=0;i<a[0];i++)
 		{
-			t=data_sub(ta,tb);
-			delete [] ta;
-			ta = tb;
-			tb = t;
+			ta[i] = a[i];
 		}
-		else 
+		for(i=0;i<b[0];i++)
 		{
-			t = data_sub(tb,ta);
-			delete [] tb;
-			tb = ta;
-			ta = t;
+			tb[i] = b[i];
 		}
-	}
-	delete [] ta;
-	t = tb;
 
-	change_simp(a,t);
-	change_simp(b,t);
+		while(big_than(ta,tb)||big_than(tb,ta))
+		{
+			if(big_than(ta,tb))
+			{
+				t=data_sub(ta,tb);
+				delete [] ta;
+				ta = tb;
+				tb = t;
+			}
+			else 
+			{
+				t = data_sub(tb,ta);
+				delete [] tb;
+				tb = ta;
+				ta = t;
+			}
+		}
+		delete [] ta;
+		t = tb;
+
+		change_simp(a,t);
+		change_simp(b,t);
+	}
 }
 void change_simp(int*& a,const int* t)
 {

@@ -148,37 +148,44 @@ void equation::out_put()
 	unsigned long is=0;
 	char te;
 	int t;
+	//int i = 50;
 	while(1)
 	{
 		if (e[is]>='A'&& e[is]<='Z')
 		{
 			push_numbers(data[e[is]-'A']);
+			cout<<"push number "<<data[e[is]-'A']<<endl;
 			is++;
 		}
 		else
 		{
 			te=pop_sign();
+			cout<<"pop sign te is "<<te<<endl;
 			if (te=='('||big_than(e[is],te))
 			{
 				push_sign(te);
 				push_sign(e[is]);
+				cout<<"push te & e[is] "<<te<<" "<<e[is]<<endl;
 				is++;
 			}
 			else 
 			{
-				cout<<" djkflskjfab"<<te<<endl;
+				cout<<" now calc te is "<<te<<endl;
+				int t1 = pop_numbers();
+				int t2 = pop_numbers();
 				switch(te)
 				{
-					case '+': t = pop_numbers()+pop_numbers();
+					case '+': t = t2+t1;
 							  break;
-					case '-': t = pop_numbers()-pop_numbers();
+					case '-': t = t2-t1;
 							  break;
-					case '*': t = pop_numbers()*pop_numbers();
+					case '*': t = t2*t1;
 							  break;
-					case '/': t = pop_numbers() / pop_numbers();
+					case '/': t = t2/t1;
 							  break;
 				}
 				push_numbers(t);
+				cout<<"calc done push "<<t<<endl;
 				
 				if(first->next==NULL&&e[is]=='#')
 				{
@@ -186,9 +193,24 @@ void equation::out_put()
 				}
 				else if(e[is]==')')
 				{
-					pop_sign();
-					is++;
+					char tt = pop_sign();
+					if(tt!='(')
+					{
+						push_sign(tt);
+					}
+					else
+					{
+						is++;
+					}
 				}
+				//else if(e[is]==')'&&(te=pop_sign()=='('))
+				//{
+				//	is++;
+				//}
+				//else if(e[is]==')'&&(te=pop_sign()!='('))
+				//{
+				//	push_sign(te);
+				//}
 				else if(e[is]!='#')
 				{
 					push_sign(e[is]);

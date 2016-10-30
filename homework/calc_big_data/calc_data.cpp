@@ -204,44 +204,45 @@ int* data_sub(const int* a,const int* b)
 void change_simp(int*& a,const int* t);
 void simp(int*& a,int*& b)
 {
-	int* ta = new int[a[0]];
-	int* tb = new int[b[0]];
-	int* t;
+	if(a[1]!=0)
+	{
+		int* ta = new int[a[0]];
+		int* tb = new int[b[0]];
+		int* t;
 
-	int i;
-	for(i=0;i<a[0];i++)
-	{
-		ta[i] = a[i];
-	}
-	for(i=0;i<b[0];i++)
-	{
-		tb[i] = b[i];
-	}
-	output(ta);
-	output(tb);
-
-	while(big_than(ta,tb)||big_than(tb,ta))
-	{
-		if(big_than(ta,tb))
+		int i;
+		for(i=0;i<a[0];i++)
 		{
-			t=data_sub(ta,tb);
-			delete [] ta;
-			ta = tb;
-			tb = t;
+			ta[i] = a[i];
 		}
-		else 
+		for(i=0;i<b[0];i++)
 		{
-			t = data_sub(tb,ta);
-			delete [] tb;
-			tb = ta;
-			ta = t;
+			tb[i] = b[i];
 		}
-	}
-	delete [] ta;
-	t = tb;
 
-	change_simp(a,t);
-	change_simp(b,t);
+		while(big_than(ta,tb)||big_than(tb,ta))
+		{
+			if(big_than(ta,tb))
+			{
+				t=data_sub(ta,tb);
+				delete [] ta;
+				ta = tb;
+				tb = t;
+			}
+			else 
+			{
+				t = data_sub(tb,ta);
+				delete [] tb;
+				tb = ta;
+				ta = t;
+			}
+		}
+		delete [] ta;
+		t = tb;
+
+		change_simp(a,t);
+		change_simp(b,t);
+	}
 }
 void change_simp(int*& a,const int* t)
 {
@@ -328,11 +329,17 @@ point* operator*(const point& a,const point& b)
 	temp->top_coefficient = data_multi(a.top_coefficient,b.top_coefficient);
 	temp->bottom_coefficient = data_multi(a.bottom_coefficient,b.bottom_coefficient);
 	temp->bottom_power = data_multi(a.bottom_power,b.bottom_power);
+	//cout<<"temp -> bottom_power  is ";
+	//output(temp->bottom_power);
+	//cout<<endl;
 
 	if(a.sign_power==b.sign_power)
 	{
 		temp->sign_power=a.sign_power;
 		temp->top_power = data_add(data_multi(a.top_power,b.bottom_power),data_multi(a.bottom_power,b.top_power));
+		//cout<<"temp->top_power is ";
+		//output(temp->top_power);
+		//cout<<endl;
 	}
 	else if(a.sign_power=="-")
 	{
@@ -462,6 +469,11 @@ ostream& operator<<(ostream& out,multi_data& a)
 	//if(temp) cout<<"temp make done"<<endl;
 	while(temp)
 	{
+		if(temp->top_coefficient[1]==0)
+		{
+			temp = temp->next;
+			continue;
+		}
 		if(temp->sign_coefficient=="+")
 		{
 			output(temp->top_coefficient);
@@ -483,23 +495,30 @@ ostream& operator<<(ostream& out,multi_data& a)
 			out<<" x ";
 		}
 
-		if(temp->sign_power=="+")
+		if(temp->top_power[1]!=0)
 		{
-			output(temp->top_power);
-		}
-		else
-		{
-			out<<"-";
-			output(temp->top_power);
-		}
+			if(temp->sign_power=="+")
+			{
+				output(temp->top_power);
+			}
+			else
+			{
+				out<<"-";
+				output(temp->top_power);
+			}
 
-		if(temp->bottom_power[1]!=1)
-		{
-			out<<"/";
-			output(temp->bottom_power);
+			if(temp->bottom_power[1]!=1)
+			{
+				out<<"/";
+				output(temp->bottom_power);
+			}
 		}
-		temp = temp->next;
+		else 
+		{
+			out<<"0";
+		}
 		out<<" ";
+		temp = temp->next;
 	}
 
 	//cout<<" cout << done"<<endl;
@@ -640,19 +659,19 @@ void multi_data::arrange()
 	temp = first->next;
 	while(temp)
 	{
-		cout<<"pre ";
-		output(temp->top_coefficient);
-		cout<<" ";
-		output(temp->bottom_coefficient);
-		cout<<endl;
+		//cout<<"pre ";
+		//output(temp->top_coefficient);
+		//cout<<" ";
+		//output(temp->bottom_coefficient);
+		//cout<<endl;
 
 		simp(temp->top_coefficient,temp->bottom_coefficient);
 
-		cout<<"done ";
-		output(temp->top_coefficient);
-		cout<<" ";
-		output(temp->bottom_coefficient);
-		cout<<endl;
+		//cout<<"done ";
+		//output(temp->top_coefficient);
+		//cout<<" ";
+		//output(temp->bottom_coefficient);
+		//cout<<endl;
 
 		simp(temp->top_power,temp->bottom_power);
 		temp = temp->next;
@@ -662,7 +681,7 @@ void multi_data::arrange()
 
 void multi_data::copy_point(const multi_data* a)
 {
-	cout<<"copy point start"<<endl;
+	//cout<<"copy point start"<<endl;
 
 	first = new point();
 	point* temp = a->first->next;
@@ -672,7 +691,7 @@ void multi_data::copy_point(const multi_data* a)
 		push(temp->sign_coefficient,temp->sign_power,temp->top_coefficient,temp->bottom_coefficient,temp->top_power,temp->bottom_power);
 		temp = temp->next;
 	}
-	cout<<" copy_point done"<<endl;
+	//cout<<" copy_point done"<<endl;
 }
 void multi_data::push(point* p)
 {
@@ -681,7 +700,7 @@ void multi_data::push(point* p)
 }
 multi_data* operator+(const multi_data& m1,const multi_data& m2)
 {
-	cout<<"multi_data +  start"<<endl;
+	//cout<<"multi_data +  start"<<endl;
 	multi_data* temp = new multi_data();
 
 	point* t = m1.first->next;
@@ -699,7 +718,7 @@ multi_data* operator+(const multi_data& m1,const multi_data& m2)
 		temp->push(t->sign_coefficient,t->sign_power,t->top_coefficient,t->bottom_coefficient,t->top_power,t->bottom_power);
 		t = t->next;
 	}
-	cout<<"multi_data + done"<<endl;
+	//cout<<"multi_data + done"<<endl;
 	return temp;
 }
 
@@ -981,10 +1000,10 @@ void calc_multi::input()
 		getline(cin,s);
 		s = s.substr(2);
 		mul[j].input(s);		
-		cout<<mul[j]<<endl;
+		//cout<<mul[j]<<endl;
 	}
 	
-	cout<<"input finish"<<endl;
+	//cout<<"input finish"<<endl;
 }
 void calc_multi::push_sign(char a)
 {
@@ -1011,34 +1030,36 @@ void calc_multi::output()
 	{
 		if(expression[is]>='A'&&expression[is]<='Z')
 		{
-			cout<<"push number mul["<<expression[is]-'A'<<"]"<<endl;
+			//cout<<"push number mul["<<expression[is]-'A'<<"]"<<endl;
 			push_number(&mul[expression[is]-'A']);
 			is++;
 		}
 		else
 		{
 			te = pop_sign();
-			cout<<"pop sign "<<te<<endl;
+			//cout<<"pop sign "<<te<<endl;
 			if(te=='('||big_than(expression[is],te))
 			{
 				push_sign(te);
 				push_sign(expression[is]);
-				cout<<"Push "<<te<<" "<<expression[is]<<endl;
+			//	cout<<"Push "<<te<<" "<<expression[is]<<endl;
 				is++;
 			}
 			else 
 			{
-				cout<<"kkkkkkkkkkkkkkkkkkkkkkkkkk"<<te<<endl;
+		//		cout<<"kkkkkkkkkkkkkkkkkkkkkkkkkk"<<te<<endl;
+				multi_data* t1 = pop_number();
+				multi_data* t2 = pop_number();
 				switch(te)
 				{
-					case '+': t = *pop_number()+*pop_number();
+					case '+': t = *t2+*t1;
 							  break;
-					case '-': t = *pop_number()-*pop_number();
+					case '-': t = *t2-*t1;
 							  break;
-					case '*': t = *pop_number()**pop_number();
+					case '*': t = *t2**t1;
 							  break;
 				}
-				cout<<"calc push_number t"<<endl;
+	//			cout<<"calc push_number t"<<endl;
 				push_number(t);
 
 				if(sign_stack->next == NULL&&expression[is]=='#')
@@ -1047,9 +1068,21 @@ void calc_multi::output()
 				}
 				else if(expression[is]==')')
 				{
-					pop_sign();
-					is++;
+					char tt = pop_sign();
+					if(tt!='(')
+					{
+						push_sign(tt);
+					}
+					else 
+					{
+						is++;
+					}
 				}
+				//else if(expression[is]==')')
+				//{
+				//	pop_sign();
+				//	is++;
+				//}
 				else  if(expression[is]!='#')
 				{
 					push_sign(expression[is]);
