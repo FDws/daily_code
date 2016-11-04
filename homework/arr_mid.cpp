@@ -1,8 +1,11 @@
 #include<iostream>
 using namespace std;
+
 struct node
 {
 	int num;
+	int l;
+	int r;
 	node* left;
 	node* right;
 	node(int n = 0);
@@ -12,6 +15,8 @@ node::node(int n)
 	num = n;
 	left = NULL;
 	right = NULL;
+	l = 0;
+	r = 0;
 }
 int num_in(int* a,int b)
 {
@@ -94,24 +99,45 @@ void make_tree(node*& root,int* arr,int* mid)
 		}
 	}
 }
+int N = 0;
 void output(node* root)
 {
 	if(root)
 	{
-		cout<<root->num<<" ";
 		output(root->left);
 		output(root->right);
+		if(root->left)
+		{
+			root->l = root->left->l + 1;
+		}
+		if(root->right)
+		{
+			root->r = root->right->r + 1;
+		}
+		if(root->l-root->r>1||root->r-root->l>1)
+		{
+			if(root->l!=-1)
+			{
+				if(N==0) 
+				{
+					cout<<"NO"<<endl;
+					N = 1;
+				}
+				cout<<root->num<<endl;
+			}
+			root->l = root ->r = -1;
+		}
 	}
 }
-void out_put(node* root)
-{
-	if(root)
-	{
-		out_put(root->left);
-		out_put(root->right);
-		cout<<root->num<<" ";
-	}
-}
+//void out_put(node* root)
+//{
+//	if(root)
+//	{
+//		out_put(root->left);
+//		out_put(root->right);
+//		cout<<root->num<<" ";
+//	}
+//}
 int main()
 {
 	int n;
@@ -135,9 +161,10 @@ int main()
 	node* root;
 	make_tree(root,arr,mid);
 	output(root);
-	cout<<endl;
-	out_put(root);
-	cout<<endl;
+	if(N==0)
+	{
+		cout<<"YES"<<endl;
+	}
 
 	return 0;
 }
