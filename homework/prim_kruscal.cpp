@@ -14,44 +14,27 @@ class prim
 	public:
 		void intput();
 		void search();
-		void outTable();
-		int in_now(int n);
-		void push(int n);
+		void outTable(int t=0);
 		~prim();
 };
-void prim::push(int n)
+void prim::outTable(int t)
 {
-	int i;
-	for(i=0;i<length;i++)
+	int** tt;
+	if(!t)
 	{
-		if(now[i]==-1)
-		{
-			now[i] = n;
-			break;
-		}
+		tt = out_table;
 	}
-}
-int prim::in_now(int n)
-{
-	int i;
-	for(i=0;i<length;i++)
+	else 
 	{
-		if(now[i]==n)
-		{
-			return 1;
-		}
+		tt = pic_table;
 	}
-	return 0;
-}
-void prim::outTable()
-{
 	int i;
 	int j;
 	for(i=0;i<length;i++)
 	{
 		for(j=0;j<length;j++)
 		{
-			cout<<out_table[i][j]<<" ";
+			cout<<tt[i][j]<<" ";
 		}
 		cout<<endl;
 	}
@@ -67,19 +50,17 @@ void prim::intput()
 	int i;
 	lowcost = new int[length]();
 	closest = new int[length]();
-	now = new int[length];
+	now = new int[length]();
 
 	for(i=0;i<length;i++)
 	{
 		pic_table = new int*[length];
 		out_table = new int*[length];
-		now[i]=-1;
-		lowcost[i] = maxValue;
 	}
-	lowcost[0] = -1;
+
 	for(i=0;i<length;i++)
 	{
-		pic_table[i] = new int[length];
+		pic_table[i] = new int[length]();
 		out_table[i] = new int[length]();
 	}
 	
@@ -89,6 +70,16 @@ void prim::intput()
 		for(j=0;j<length;j++)
 		{
 			cin>>pic_table[i][j];
+		}
+	}
+
+	cout<<n<<endl;
+	outTable(1);
+
+	for(i=0;i<length;i++)
+	{
+		for(j=0;j<length;j++)
+		{
 			if(pic_table[i][j]==0)
 			{
 				pic_table[i][j]=maxValue;
@@ -96,67 +87,57 @@ void prim::intput()
 		}
 	}
 }
-void low_out(int n,int* a)
-{
-	int i;
-	for(i=0;i<n;i++)
-	{
-		cout<<a[i]<<" ";
-	}
-	cout<<endl;
-}
+
 void prim::search()
 {
-	low_out(length,lowcost);
 	outTable();
-	int i=0;
-	int j;
-	int k;
-	now[0]=0;
+	now[0] = 1;//push the first point
+	lowcost[0]=0;
 
-	while(now[length-1]==-1)
+	int n = 1;
+	while(n!=length)
 	{
-		cout<<"begin new loop";
-		low_out(length,lowcost);
-		for(k=1;k<length;k++)
+		int i;
+		int j;
+		int k;
+
+		for(k=0;k<length;k++)
 		{
-			if(lowcost[k] == -1)
+			if(now[k]==1)
 			{
-				cout<<"k is "<<k<<endl;
 				continue;
 			}
-			lowcost[k]=pic_table[k][0];
-			closest[k]=0;
-			for(i=0;i<length;i++)
+			else
 			{
-				if(in_now(i))
+				lowcost[k]=pic_table[k][0];
+				closest[k]=0;
+				for(i=1;i<length;i++)
 				{
-					cout<<i<<" is in now"<<endl;
-					if(pic_table[k][i]<lowcost[k])
+					if(now[i]&&pic_table[k][i]<lowcost[k])
 					{
 						lowcost[k] = pic_table[k][i];
 						closest[k] = i;
-						cout<<"change path and point "<<pic_table[k][i]<<" "<<k<<" "<<i<<endl;
-						low_out(length,lowcost);
 					}
 				}
 			}
 		}
 
-		j = 1;
-		for(i=1;i<length;i++)
+		j = maxValue;
+		int l = 0;
+		for(i=0;i<length;i++)
 		{
-			if(lowcost[i]<lowcost[j]||lowcost[j]==-1)
+			if(now[i]==0&&lowcost[i]<j)
 			{
-				j = i;
+				j = lowcost[i];
+				l = i;
 			}
 		}
-cout<<"j is  "<<j<<endl;
-		out_table[j][closest[j]] = out_table[closest[j]][j] = pic_table[j][closest[j]];
-		push(j);
+
+		//now the l is the point waiting to push
+		now[l] = 1;
+		out_table[l][closest[l]] = out_table[closest[l]][l] = pic_table[l][closest[l]];
+		n++;
 		outTable();
-		lowcost[j] = -1;
-		low_out(length,lowcost);
 	}
 }
 prim::~prim()
@@ -173,6 +154,11 @@ prim::~prim()
 	delete [] pic_table;
 	delete [] out_table;
 }
+class kruskal:public prim
+{
+	private:
+	public:
+};
 int main()
 {
 	prim pr;
