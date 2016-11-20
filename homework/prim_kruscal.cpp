@@ -1,8 +1,101 @@
 #include<iostream>
+#include<string>
 #define maxValue 2147483647
 using namespace std;
 
-class prim
+struct save_str
+{
+	string str;
+	save_str* next;
+	save_str(string s="");
+};
+save_str::save_str(string s)
+{
+	str = s;
+	next = NULL;
+}
+class Str_List
+{
+	private:
+		save_str* first;
+	public:
+		Str_List();
+		int deal_point(char a,char b);
+		~Str_List();
+};
+Str_List::Str_List()
+{
+	first = new save_str();
+}
+int Str_List::deal_point(char a,char b)
+{
+	unsigned long no = -1;
+	save_str* temp_a = first;
+	save_str* temp_b = first;
+	save_str* tt;
+
+	while(temp_a->next)
+	{
+		if(temp_a->next->str.find(a)!=no)
+	   	{
+		   	break;
+	   	} 
+		temp_a = temp_a->next;
+	}
+
+	while(temp_b->next)
+	{
+		if(temp_b->next->str.find(b)!=no)
+		{
+			break;
+		} 
+		temp_b = temp_b -> next;
+	}
+
+	//a = b = NULL
+	//a = b !=NULL
+	//a != b
+
+	if(temp_a->next&&temp_a->next==temp_b->next)//this is circle
+	{
+		//cout<<"is circle"<<endl;
+		return 0;
+	}
+	else if(temp_a->next&&temp_b->next)//a belong to one set,b belong to another
+	{
+		temp_a->next->str = temp_a->next->str + temp_b->next->str;
+		tt = temp_b->next;
+		temp_b->next = tt->next;
+		delete tt;
+		//cout<<" a belong to one, be belong to another"<<endl;
+	}
+	else if(!temp_a->next&&!temp_b->next)//a and b are not in anyone set
+	{
+		string s;
+		s = s+a;
+		s = s+b;
+		tt = new save_str(s);
+		tt->next = first->next;
+		first->next = tt;
+		//cout<<"a b are not"<<endl;
+	}
+	else if(temp_a->next&&!temp_b->next)//a belong to one set, b not belong to anyone set
+	{
+		temp_a->next->str = temp_a->next->str + b;
+		//cout<<"a in, b not"<<endl;
+	}
+	else if(!temp_a->next&&temp_b->next)//b belong to one set, a not belong to anyone set
+	{
+		temp_b->next->str = temp_b->next->str + a;
+	}
+	else 
+	{
+		cout<<"not include all condition"<<endl;
+	}
+
+	return 1;
+}
+class prim_kruskal
 {
 	private:
 		int* lowcost;
@@ -13,11 +106,25 @@ class prim
 		int length;
 	public:
 		void intput();
-		void search();
+		void prim_search();
+		void kruskal_search();
+		void re_set_out_table();
 		void outTable(int t=0);
-		~prim();
+		~prim_kruskal();
 };
-void prim::outTable(int t)
+void prim_kruskal::re_set_out_table()
+{
+	int i;
+	int j;
+	for(i=0;i<length;i++)
+	{
+		for(j=0;j<length;j++)
+		{
+			out_table[i][j]=0;
+		}
+	}
+}
+void prim_kruskal::outTable(int t)
 {
 	int** tt;
 	if(!t)
@@ -40,7 +147,7 @@ void prim::outTable(int t)
 	}
 	cout<<endl;
 }
-void prim::intput()
+void prim_kruskal::intput()
 {
 	int n;
 	cin>>n;
@@ -87,8 +194,7 @@ void prim::intput()
 		}
 	}
 }
-
-void prim::search()
+void prim_kruskal::prim_search()
 {
 	outTable();
 	now[0] = 1;//push the first point
@@ -139,8 +245,48 @@ void prim::search()
 		n++;
 		outTable();
 	}
+	re_set_out_table();
 }
-prim::~prim()
+void prim_kruskal::kruskal_search()
+{
+	outTable();
+	int n = 0;
+	Str_List* str = new Str_List();
+
+	while(n<length-1)
+	{
+		int i;
+		int j;
+		int min_x=0;
+		int min_y=0;
+		int mt=maxValue;
+
+		for(i=0;i<length;i++)
+		{
+			for(j=0;j<i;j++)
+			{
+				if(pic_table[i][j]<mt)
+				{
+					mt = pic_table[i][j];
+					min_x = i;
+					min_y = j;
+				}
+			}
+		}
+
+		//cout<<"find min and begin to deal"<<endl;
+		//cout<<"min_x "<<min_x<<" min_y "<<min_y<<endl;
+		if(str->deal_point(min_x+'0',min_y+'0'))
+		{
+			n++;
+			out_table[min_x][min_y] = out_table[min_y][min_x] = pic_table[min_x][min_y];
+			outTable();
+		}
+
+		pic_table[min_x][min_y] = maxValue;
+	}
+}
+prim_kruskal::~prim_kruskal()
 {
 	delete [] lowcost;
 	delete [] closest;
@@ -154,16 +300,14 @@ prim::~prim()
 	delete [] pic_table;
 	delete [] out_table;
 }
-class kruskal:public prim
-{
-	private:
-	public:
-};
 int main()
 {
-	prim pr;
+	prim_kruskal pr;
 	pr.intput();
-	pr.search();
+	cout<<"Prim:"<<endl;
+	pr.prim_search();
+	cout<<"Kruskal:"<<endl;
+	pr.kruskal_search();
 
 	return 0;
 }
