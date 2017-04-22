@@ -12,7 +12,7 @@ typedef struct JCB{
 	clock_t needTime;
 	clock_t waitTime;
 	double responseRatio;
-	int source;
+	int resource;
 	int state;
 	struct JCB* next;
 
@@ -22,11 +22,11 @@ typedef struct JCB{
 		needTime = 0;
 		waitTime = 0;
 		responseRatio = 0;
-		source = 0;
+		resource = 0;
 		state = WAIT;
 		next = NULL;
 	}
-	JCB (int id,int needTime,char* name = NULL){
+	JCB (int id,int needTime,int resource = 0,char* name = NULL){
 		this->id = id;
 		this->name = new char[3];
 		if(name){
@@ -36,7 +36,7 @@ typedef struct JCB{
 		this->needTime = needTime;
 		waitTime = 0;
 		responseRatio = 0;
-		source = 0;
+		this->resource = resource;
 		state = WAIT;
 		next = NULL;
 	}
@@ -48,7 +48,7 @@ typedef struct JCB{
 		needTime = h->needTime;
 		waitTime = h->waitTime;
 		responseRatio = h->responseRatio;
-		source = h->source;
+		resource = h->resource;
 		state = h->state;
 		next = NULL;
 	}

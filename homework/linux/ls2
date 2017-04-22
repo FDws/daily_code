@@ -62,11 +62,13 @@ set cindent
 set cinoptions={0,1s,t0,n-2,p2s,(03s,=.5s,>1s,=1s,:1s
 inoremap jj <ESC>
 autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+set t_Co=256
+set bg=dark
 colorscheme molokai
 "inoremap { {}<ESC>i
 inoremap {<CR> {<CR>}<ESC>O
 set fdm=indent
-set term=screen-256color
+"set term=screen-256color
 
 autocmd BufNewFile *.h exec ":call SetTitle()"
 func SetTitle()
@@ -81,3 +83,7 @@ func SetTitle()
 		call setline(4,"#endif")
 	endif
 endfunc
+
+"if exists('$TMUX')
+"	set term=screen-256color
+"endif

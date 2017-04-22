@@ -81,11 +81,11 @@ int SJF::sort(){
 		}
 
 		if(begin!=minTime){
-			JCB* maxNext = minTime->next;
-			minTime->next = maxNext->next;
+			JCB* mixNext = minTime->next;
+			minTime->next = mixNext->next;
 
-			maxNext->next = begin->next;
-			begin->next = maxNext;
+			mixNext->next = begin->next;
+			begin->next = mixNext;
 		}
 		begin = begin->next;
 	}
