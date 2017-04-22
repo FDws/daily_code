@@ -52,6 +52,7 @@ binary_queue::binary_queue()
 	root  = NULL;
 	int n;
 	int i;
+	cout<<"Input the queue "<<endl;
 	cin>>n;
 	in = new int[n+1];
 
