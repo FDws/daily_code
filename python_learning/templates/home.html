@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<title>Home</title>
+	</head>
+	<body>
+		<h1 style="font-style:italic">Home</h1>
+		<hr size="2px" color="#03f" />
+
+		{% for filename in filenames %}
+		<p><a target='_blank' href="/homework/{{ filename }}">{{ filename }}</a></p>
+		{% endfor %}
+	</body>
+</html>

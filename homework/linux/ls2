@@ -9,6 +9,7 @@ call vundle#begin()
 
 " 让vundle管理插件版本,必须
 Plugin 'VundleVim/Vundle.vim'
+Plugin 'mattn/emmet-vim'
 
 " 以下范例用来支持不同格式的插件安装.
 " 请将安装插件的命令放在vundle#begin和vundle#end之间.
@@ -53,6 +54,9 @@ let g:ycm_confirm_extra_conf = 0
 let g:syntastic_always_populate_loc_list = 1
 let g:molokai_original = 1
 let g:rehash256 = 1
+let g:user_emmet_install_global = 0
+let g:user_emmet_leader_key=',,'
+autocmd FileType html,css EmmetInstal
 set nu
 syntax enable
 syntax on
@@ -62,15 +66,15 @@ set cindent
 set cinoptions={0,1s,t0,n-2,p2s,(03s,=.5s,>1s,=1s,:1s
 inoremap jj <ESC>
 autocmd InsertLeave * if pumvisible() == 0|pclose|endif
-set t_Co=256
-set bg=dark
+autocmd FileType css set omnifunc=csscomplete
+autocmd FileType html set omnifunc=htmlcomplete
 colorscheme molokai
 "inoremap { {}<ESC>i
 inoremap {<CR> {<CR>}<ESC>O
 set fdm=indent
-"set term=screen-256color
+set term=screen-256color
 
-autocmd BufNewFile *.h exec ":call SetTitle()"
+autocmd BufNewFile *.h,*.html,*.py exec ":call SetTitle()"
 func SetTitle()
 	let name=expand("%:r")
 	let expansion=expand("%:e")
@@ -81,7 +85,20 @@ func SetTitle()
 		call setline(2,"#define ".name)
 		call setline(3,"")
 		call setline(4,"#endif")
+	elseif expansion=='html'
+		call setline(1,"<!DOCTYPE html>")
+		call setline(2,"<html lang=\"en\">")
+		call setline(3,"	<head>")
+		call setline(4,"		<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />")
+		call setline(5,"		<title></title>")
+		call setline(6,"	</head>")
+		call setline(7,"")
+		call setline(8,"</html>")
+	elseif expansion=='py'
+		call setline(1,"#!/usr/bin/python3")
+		call setline(2,"# -*- coding: utf-8 -*-")
 	endif
+
 endfunc
 
 "if exists('$TMUX')
