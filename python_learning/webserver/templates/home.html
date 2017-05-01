@@ -2,6 +2,9 @@
 <html lang="en">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		{% if filenames %}
+		<link type="text/css" rel="stylesheet" href="{{ url_for('static',filename='test.css') }}" />
+		{% endif %}
 		<title>Home</title>
 	</head>
 	<body>
