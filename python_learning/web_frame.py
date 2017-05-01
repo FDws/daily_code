@@ -4,6 +4,7 @@
 from flask import Flask
 from flask import request
 from flask import render_template
+from functools import reduce
 import os
 import re
 
@@ -42,8 +43,7 @@ def getFilename():
         for filename in filenames:
             if re.match('test.*\.html',filename):
                 f.append(filename)
-    return f
-
+    return sorted(f,key=lambda ss:reduce(lambda a,b:int(a)*10+int(b),filter(lambda s:s!='',re.split('[^\d]',ss))))
 
 if __name__ == "__main__":
     app.run(debug=True)
