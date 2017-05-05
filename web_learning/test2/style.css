@@ -1,0 +1,45 @@
+.ti{
+	background-color:#FFFFCC;
+	font-size:40pt;
+	font-family:"华文彩云";
+	color:red;
+}
+.line{
+	background-color:#33CCFF;
+}
+.left_ti{
+	background-color:#FFFFCC;
+	border-top:solid 2pt #FFCC00;
+	border-right:dotted 2pt #0033FF;
+}
+.left_content{
+	background-color:#FFCCFF;
+	border-right:dotted 2pt #0033FF;
+}
+.foot{
+	background-color:#99CCFF;
+	border-top:double 2pt #0033FF;
+}
+table{
+	border:1pt solid #FFF;
+	border-collapse:collapse;
+	font-style:bold;
+	text-align:center;
+	width:60%;
+}
+a:link{
+	color:black;
+	text-decoration:none;
+}
+a:visited{
+	color:black;
+	text-decoration:none;
+}
+a:active{
+	color:red;
+	text-decoration:underline;
+}
+a:hover{
+	color:red;
+	text-decoration:underline;
+}
