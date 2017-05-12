@@ -37,7 +37,7 @@ fileSys::fileSys(){
 	loop();
 }
 void fileSys::loop(){
-	cout<<"Welcom!"<<endl;
+	cout<<"Welcome!"<<endl;
 	int flag;
 	int exit=0;
 
@@ -77,7 +77,6 @@ void fileSys::loop(){
 				cout<<"Illegal parameter!"<<endl;
 		}
 	}
-	
 }
 void fileSys::showCmd(){
 	cout<<"\n--------------------------"<<endl;
