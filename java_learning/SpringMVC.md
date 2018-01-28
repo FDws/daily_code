@@ -1,0 +1,102 @@
+# [Spring Web MVC](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html)
+----
+## 介绍
+1. 原始的基于 Servlet API 的 Web 框架， 包含在 Spring 框架中
+2. 并行的还有一个响应式的Web框架`Spring WebFlux`
+
+## DispatcherServlet
+1. 基于`Servlet`的前端控制器.
+2. 在`web.xml`中注册的基本配置:
+```xml
+<web-app>
+    <servlet>
+        <servlet-name>mvcDispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mvcDispatcher</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+</web-app>
+```
+### 上下文层级(Context Hierarchy)
+1. `DispatcherServlet`需要一个继承自`ApplicationContext`的`WebAppliicationContext`来配置自己
+-  ![](https://docs.spring.io/spring/docs/current/spring-framework-reference/images/mvc-context-hierarchy.png)
+
+### 特殊的Bean类型
+- 
+| Bean类型 | 解释 |
+| :---: | :--:|
+| HandlerMapping | 根据`request`找到对应的处理器`Handler`, 最主要的两个实现类:`RequestMappingHandlerMapping`, 支持`@RequestMapping`注解;`SimpleUrlHandleMapping`,主要明确的注册URL与对应的`Handler`|
+|HandlerAdapter|帮助`DispatcherServlet`定位需要调用的`Handler`|
+|HandlerExceptionResolver|出现异常的时候尝试用此处理|
+|LocalResolver, LocaleContextResolver|设置不同的本地语言, 提供国际化的语言支持|
+|ThemeResolver|应用的样式控制|
+|MultipartResolver|给多样的请求提供支持(例如文件上传)|
+|FlashMapManager|存储输入输出的数据, 为多请求提供支持, 通常用在重定向中|
+
+### 框架的配置
+1. `DispatcherServlet`首先会在`WebApplicationContext`中寻找特殊的类, 若没有会使用[默认的配置](https://github.com/spring-projects/spring-framework/blob/master/spring-webmvc/src/main/resources/org/springframework/web/servlet/DispatcherServlet.properties)
+2. 应用可以声明自己的配置类, 大多数的应用会在更高等级的配置中找到一个最优的开始位置. 
+
+### 容器配置
+1. 在Servlet3.0+中, 可以选择编程或者在`web.xml`文件中配置容器
+2. 编程注册`DispatcherServlet`:
+```Java
+import org.springframework.web.WebApplicationInitializer;
+
+public class MyWebApplicationInitializer implements WebApplicationInitializer {
+
+    @Override
+    public void onStartup(ServletContext container) {
+        XmlWebApplicationContext appContext = new XmlWebApplicationContext();
+        appContext.setConfigLocation("/WEB-INF/spring/dispatcher-config.xml");
+
+        ServletRegistration.Dynamic registration = container.addServlet("dispatcher", new DispatcherServlet(appContext));
+        registration.setLoadOnStartup(1);
+        registration.addMapping("/");
+    }
+}
+```
+3. 继承`AbstractDispatcherServletInitializer`类并重写其中的方法可以很方便的配置`DispatcherServlet`, 并且还可以很方便的添加过滤器
+
+### 程序流程
+1. `DispatcherServlet`基本流程
+    - 搜索`WebApplicationContext`, 并且绑定到 请求 以便于controller等的使用. 默认绑定的是`DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE`
+    - 绑定 `Local Resolver`到请求
+    - 绑定 `Theme Resolver`到请求
+    - 如果有文件, 请求会被包装成`MultipartHttpServletRequest`
+    - 寻找恰当的`handler`, 如果找到了, 执行链会被执行, 准备模型或者渲染. 另一种选择是对于注释的解析器, 响应可能会被渲染代替返回一个视图.
+    - 如果返回了一个模型(`model`), 视图(`view`)会被渲染. 当没有模型返回的时候, 视图不会被渲染, 请求可能已经响应了.
+2. 当执行流程出现异常的时候, `HandlerExceptionResolver`会去抓取异常, 可以自定义不同异常的不同行为.
+3. `DispatcherServlet`支持返回最后的修改日期, 当实现了`LastModified`接口时, `getLastModified(request)`会返回给客户端一个`long`型值. 主要用于判断资源是否过期.
+4. 可以自定义多个独立的`DispatcherServlet`, 用`init-param`来初始化.
+- | Parameter|Explanation|
+    | :--:| :--:|
+    | contextClass| 定义上下文, 默认是`XmlWebApplicationContext`|
+    |contextConfigLocation| 指定上下文路径, 多个上下文用逗号隔开, 有重复的时候以最后一次为准|
+    |namespace|`WebApplicationContext`的命名空间, 默认是`[servlet-name]-servlet`|
+
+### 拦截器(Interception)
+1. 拦截器需要实现`HandlerInterceptor`接口, 三个方法:
+    - `preHandle(...)` : 在 `handler`处理之前执行
+    - `postHandle(...)`: 在 `handler`处理之后执行
+    - `afterCompletion(...)` : 在完整的请求结束之后执行
+2. `preHandle(...)` : 返回`true`, 流程继续执行; 返回`false`, 流程结束
+3. 有了`@ResponseBody`和`ResponseEntity`, 所以`postHandle()`比较少用
+
+### 视图解析器(View Resolution)
+1. `SpringMVC` 声明了`ViewResolver`和`View`接口用来渲染模型(`model`).
+2. `InternalResourceViewResolver`: 支持`InternalResourceView`的方便的解析器, 同时支持`JstlView`和`TilesView`
+3. `FreeMarkViewResolver`:支持`FreeMarkView`的解析器
+4. 当解析链中有多个解析器时, 最好指定`order`, 值越高, 越晚执行.
+#### 重定向(Redirect)
+1. 有`redirect:`前缀的`view`名字会被重定向
+    - `redirect:/abc/def`会使用当前的上下文
+    - `redirect:http://myhost/abc/def`会使用新的上下文
+2. 当控制器的方法有`@ResponseStatus`注释时, 注释的值会优先于`RedirectView`设置的值
+#### 请求转发(Forward)
+1. 有`forward`前缀的会被转发, 由`UrlBasedViewResolver`或者子类处理. 
+2. 此动作会生成一个`InternalResourceView`来执行`RequestDispatcher.forward()`方法, 所以此前缀对`InternalResourceViewResolver`没用.
+#### 内容转发(Content negotiation)
+1. `ContentNegotiatingViewResolver` 不解析`View`而是寻找一个可以解析此类型视图的解析器
