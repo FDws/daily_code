@@ -100,3 +100,133 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 2. 此动作会生成一个`InternalResourceView`来执行`RequestDispatcher.forward()`方法, 所以此前缀对`InternalResourceViewResolver`没用.
 #### 内容转发(Content negotiation)
 1. `ContentNegotiatingViewResolver` 不解析`View`而是寻找一个可以解析此类型视图的解析器
+
+### 本地化(Locale)
+1. 当请求到来时, `DispatcherServlet`会寻找一个本地化解析器.你可以通过`RequestContext.getLocale()`获得由本地化解析器解析的`Locale`
+2. 通过设置拦截器, 也可以改变特定环境下的本地化解析器
+#### 时区(TimeZone)
+1. `LocaleContextResolver`继承了`LocaleResolver`接口, 丰富了内容, 包括了时区的内容
+2. 可以通过`RequestContext.getTimeZone()`获得时区类(`TimeZone`)
+#### 头信息解析器(Header Resolver)
+1. 检查请求信息头中的`accept-language`信息, 初始化解析器
+2. 不支持时区
+#### Cookie Resolver
+1. 本地化信息保存在Cookie中
+#### 会话解析(Session Resolver)
+1. 本地化信息保存在会话中
+#### 本地化拦截器(Locale Interceptor)
+1. 利用拦截器改变本地化方式
+```xml
+<!--定义国际化资源-->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="message"/>
+    </bean>
+    <!--声明 Cookie 本地解析器-->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+        <property name="cookieName" value="language"/>
+    </bean>
+```
+```html
+<html>
+<head>
+    <title>Demo Page</title>
+</head>
+<body>
+This is demo page!<br/>
+sex:<spring:message code="sex"/>
+<br/>
+name:<spring:message code="name"/>
+<br/>
+<select id="language" onchange="changeLanguage(this)">
+    <option id='zh' value="zh" >中文(简体)</option>
+    <option id='en' value="en" >English</option>
+</select>
+<script>
+    let arr = document.cookie.match(/[^\w]*language=(\w*)/);
+    let lang = arr==null?null:document.getElementById(arr[1]);
+    if(lang!=null){
+        lang.selected = true;
+    }
+
+    function changeLanguage(obj) {
+        document.cookie = 'language=' + obj.value + ';path=/';
+        location.reload();
+    }
+</script>
+</body>
+</html>
+```
+### 主题(Themes)
+1. 定义主题
+```properties
+back=/static/picture/cool.jpg
+css=/static/css/cool.css
+```
+2. 解析主题
+```java
+@Bean("themeSource")
+public ResourceBundleThemeSource theme() {
+	ResourceBundleThemeSource rb = new ResourceBundleThemeSource();
+	rb.setBasenamePrefix("theme/");
+
+	return rb;
+}
+
+@Bean("themeResolver")
+public CookieThemeResolver cts() {
+	CookieThemeResolver ctr = new CookieThemeResolver();
+	ctr.setCookieName("theme");
+	ctr.setDefaultThemeName("cool");
+	return ctr;
+}
+```
+```xml
+<link rel="stylesheet" href="<spring:theme code='css' text='theme.css'/>" type="text/css"/>
+<img src="<spring:theme code='back' text='theme.back'/>" alt="picture" />
+```
+### 多文件解析(Multipart Resolver)
+1. 可以用`commons-fileupload`包 也可以用 servlet3.0 自带的配置
+```java
+@Bean("multipartResolver")
+public StandardServletMultipartResolver mul(){
+	StandardServletMultipartResolver s = new StandardServletMultipartResolver();
+	return s;
+}
+@PostMapping("upload")
+@ResponseBody
+public List<String> up(HttpServletRequest request) throws IOException, ServletException {
+	List<String> result = new LinkedList<>();
+	File dir = new File("h:/shuo");
+	if (!dir.exists()) {
+		if (!dir.mkdirs()) {
+			result.add("Error");
+			System.out.println(1);
+			return result;
+		}
+		System.out.println(2);
+	}
+
+	for (Part part : request.getParts()) {
+		String name = fileName(part.getHeader("Content-disposition"));
+		if (name.length() > 0) {
+			part.write(dir.getPath() + "/" + name);
+			System.out.println(part.getHeader("Content-disposition"));
+			result.add(fileName(part.getHeader("Content-disposition")) + " Done");
+		}
+
+	}
+	return result;
+}
+
+private String fileName(String info) {
+	String DEFAULT = "";
+	System.out.println(info);
+	Pattern p = Pattern.compile("[^\\w]*filename(['|\"].*?['|\"])?=['|\"](.*)?['|\"].*");
+	Matcher m = p.matcher(info);
+	if (m.find()) {
+		String na = m.group(2);
+		return na.length() > 0 ? na : DEFAULT;
+	}
+	return DEFAULT;
+}
+```
