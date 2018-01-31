@@ -230,3 +230,98 @@ private String fileName(String info) {
 	return DEFAULT;
 }
 ```
+## 过滤器(Filter)
+### 包装请求参数
+1. `ServletRequest.getParameter*()`方法不能获取`get`和`post`方法之外的参数
+2. 添加`HttpPutFormContentFilter`可以把参数包装, 从而使得`ServletRequest.getParamter*()`可以获得请求参数
+### 转发头(Forwarded Headers)
+1. 可以用`ForwardedHeaderFilter`过滤掉不可信的请求头
+### 浅显的实体标签(Shallow ETag)
+1. 可以添加`ShallowEtagHeaderFilter`过滤器来控制缓存, 生成文件的哈希码, 便于浏览器缓存的使用
+### 访问控制(CORS)
+1. 可以添加`CorsFilter`来进行访问控制
+## 注释控制器
+1. 简单的demo, 映射`/hello`请求, 接收一个模型, 返回视图的名字
+```java
+@Controller
+public class HelloController {
+
+    @GetMapping("/hello")
+    public String handle(Model model) {
+        model.addAttribute("message", "Hello World!");
+        return "index";
+    }
+}
+```
+### 定义(Declaration)
+1. 用`@Controller`/`@Component`/`@RestController`注释
+2. `@RestController`结合了`@Controller`和`@ResponseBody`, 直接返回结果, 不会进行模型和视图渲染
+#### AOP 代理
+1. 当需要AOP代理时, 例如通过`@Transactional`注解, 此时需要明确指出是基于类的代理, `<tx:annotation-driven proxy-target-class="true"/>`
+### 请求映射(Request Mapping)
+1. 请求映射(`@RequestMapping`)是把请求映射到相应的控制器
+2. `@RequestMapping` 有 五个快捷的 请求方法注解:
+    - `@GetMapping`
+    - `@PostMapping`
+    - `@PutMapping`
+    - `@DeleteMapping`
+    - `@PatchMapping`
+3. demo
+```java
+@RestController
+@RequestMapping("/persons")
+class PersonController {
+
+    @GetMapping("/{id}")
+    public Person getPerson(@PathVariable Long id) {
+        // ...
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void add(@RequestBody Person person) {
+        // ...
+    }
+}
+```
+#### URI 模式(Pattern) 
+1. 匹配规则:
+    - `?` 匹配一个字符
+    - `*` 匹配零个或者多个字符, 不包括`/`分隔符
+    - `**`匹配领个或者多个字符, 包括`/`分隔符
+2. 声明URI变量并且用`@PathVariable`取得声明的变量:
+```java
+@GetMapping("/{de}")
+public String demo(@PathVariable String de) {
+	return de;
+}
+```
+```java
+@Controller
+@RequestMapping("/owners/{ownerId}")
+public class OwnerController {
+
+    @GetMapping("/pets/{petId}")
+    public Pet findPet(@PathVariable Long ownerId, @PathVariable Long petId) {
+        // ...
+    }
+}
+```
+3. 支持正则表达式提取
+```java
+@GetMapping("/{name:[a-z-]+}-{version:\\d\\.\\d\\.\\d}{ext:\\.[a-z]+}")
+public void handle(@PathVariable String version, @PathVariable String ext) {
+    // ...
+}
+```
+4. 路径匹配支持占位符`${...}`, 需要`<context:property-placeholder location="classpath:cfg.properties"/>`
+5. 模式匹配遵循**最精确匹配**原则
+#### 后缀匹配(Suffix match)
+1. `/demo`可以匹配`/demo.*`
+2. 可以禁用后缀匹配
+    - `useSuffixPatternMatching(false)`, see `PathMatchConfigurer`
+    - `favorPathExtension(false)`, see `ContentNeogiationConfigurer`
+3. 可以在使用`ContentNeogiationConfigurer`的`mediaTypes`属性明确的注册文件扩展名来使用文件扩展
+#### 后缀匹配与反射文件下载攻击
+1. 当请求URL的扩展名既不在白名单也不再注册列表中, 可以用`Content-Disposition:inline;filename=f.txt`来安全下载文件
+2. 可以用`HttpMessageConverter `来明确的注册文件扩展名来避免添加`Conteent-Disposition`
