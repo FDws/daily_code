@@ -343,4 +343,30 @@ public void handle(@PathVariable String version, @PathVariable String ext) {
 1. 支持的控制方法参数
 |控制方法参数(Controller method argument) | 描述(Description)|
 | :--: | :--:|
-|WebRequest, NativeWebRequest|
+|WebRequest, NativeWebRequest| 不用直接操作`Servlet API`就可以操作请求参数, 请求或者会话的属性|
+| javax.servlet.ServletRequest javax.servlet.ServletResponse|可以直接选择特殊的请求或者响应类型, 例如`HTTPServletRequest`/`MultipartRequest`/`MultipartHttpServletRequest`|
+| javax.servlet.http.HttpSession|强制一个会话的存在. 获得会话的过程不是线程安全的, 可以考虑设置`RequestMappingHandlerAdapter`的`synchronizeOnSession`为`true`|
+| javax.servlet.http.PushBuilder | 符合`HTTP/2`标准的`servlet`4.0 API, 不支持`HTTP/2`的请求此属性为`null`|
+| HTTP Method | 请求的方法|
+| java.util.Locale | 请求的本地环境对象|
+| ZoneId TimeZone | 本地化的识别对象 |
+| InputStream Reader | 请求的输入流 |
+| OutputStream Writer | 响应的输出流 |
+| `@PathVariable` | 从请求的URI中获取定义的信息|
+| `@MatrixVariable` | 获取请求参数|
+| `@RequestParam` | 获取查询参数 |
+| `@RequestHeader`| 获取请求头内容 |
+| `@CookieValue`| 获取Cookie中的内容 |
+| `@RequestBody`| 把请求参数封装成对象 |
+| `HttpEntity` | 把请求头和请求内容封装 |
+| `RequestPart` | 获取`multipart/form-data`内容|
+| `java.util.Map, org.springframework.ui.Model, org.springframework.ui.ModelMap` | 获取 模型(`model`)|
+| `RedirectAttributes` | 重定向时参数的处理|
+| `@ModelAttribute` | 获取已经存在的模型的属性 |
+| Errors, BindingResult | 从校验器或者数据绑定的对象获得错误信息|
+| `SessionStatus + class-level @SessionAttributes` | 获取会话状态与属性 |
+| `UriComponentsBuilder` | Uri生成器 |
+| `@SessionAttribute` | 会话属性 |
+| `@RequestAttribute` | 请求属性|
+| Any other argument | 其他的属性会被封装成`RequestParameter`或者`ModelAttribute`|
+
