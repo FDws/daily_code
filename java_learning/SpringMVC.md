@@ -325,3 +325,22 @@ public void handle(@PathVariable String version, @PathVariable String ext) {
 #### 后缀匹配与反射文件下载攻击
 1. 当请求URL的扩展名既不在白名单也不再注册列表中, 可以用`Content-Disposition:inline;filename=f.txt`来安全下载文件
 2. 可以用`HttpMessageConverter `来明确的注册文件扩展名来避免添加`Conteent-Disposition`
+#### 内容媒介类型匹配(Consumable media types)
+1. 例子:`@PostMapping(path = "/pets", consumes = "application/json")`, 指定特定的请求内容媒介类型, 对应`Content-Type`
+2. `MediaType`类中封装了常见的媒介类型
+3. `!`取反, 除此之外 : `!text/html`
+#### 可接受类型匹配(Producible media types)
+1. 例子:`@GetMapping(path = "/pets/{petId}", produces = "application/json;charset=UTF-8")`, 指定特定的可接受的媒介类型, 对应`Accept`
+#### 请求头与请求参数匹配
+1. `@GetMapping(path = "/pets/{petId}", params = "myParam=myValue")` & `@GetMapping(path = "/pets", headers = "myHeader=myValue")`
+2. 最好用`consumes`和`produces`而不是此项匹配
+#### `HEAD`&`OPTIONS`
+1. `@GetMapping`可以匹配`HEAD`请求
+2. `@RequestMapping`可以匹配`OPTIONS`请求
+### 方法句柄(Handler Methods)
+1. `@RequestsMapping`方法句柄有灵活的标记并且可以方便的处理请求参数与返回值
+#### 方法参数(Methods Arguments)
+1. 支持的控制方法参数
+|控制方法参数(Controller method argument) | 描述(Description)|
+| :--: | :--:|
+|WebRequest, NativeWebRequest|
