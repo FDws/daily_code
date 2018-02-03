@@ -341,32 +341,193 @@ public void handle(@PathVariable String version, @PathVariable String ext) {
 1. `@RequestsMapping`方法句柄有灵活的标记并且可以方便的处理请求参数与返回值
 #### 方法参数(Methods Arguments)
 1. 支持的控制方法参数
-|控制方法参数(Controller method argument) | 描述(Description)|
-| :--: | :--:|
-|WebRequest, NativeWebRequest| 不用直接操作`Servlet API`就可以操作请求参数, 请求或者会话的属性|
-| javax.servlet.ServletRequest javax.servlet.ServletResponse|可以直接选择特殊的请求或者响应类型, 例如`HTTPServletRequest`/`MultipartRequest`/`MultipartHttpServletRequest`|
-| javax.servlet.http.HttpSession|强制一个会话的存在. 获得会话的过程不是线程安全的, 可以考虑设置`RequestMappingHandlerAdapter`的`synchronizeOnSession`为`true`|
-| javax.servlet.http.PushBuilder | 符合`HTTP/2`标准的`servlet`4.0 API, 不支持`HTTP/2`的请求此属性为`null`|
-| HTTP Method | 请求的方法|
-| java.util.Locale | 请求的本地环境对象|
-| ZoneId TimeZone | 本地化的识别对象 |
-| InputStream Reader | 请求的输入流 |
-| OutputStream Writer | 响应的输出流 |
-| `@PathVariable` | 从请求的URI中获取定义的信息|
-| `@MatrixVariable` | 获取请求参数|
-| `@RequestParam` | 获取查询参数 |
-| `@RequestHeader`| 获取请求头内容 |
-| `@CookieValue`| 获取Cookie中的内容 |
-| `@RequestBody`| 把请求参数封装成对象 |
-| `HttpEntity` | 把请求头和请求内容封装 |
-| `RequestPart` | 获取`multipart/form-data`内容|
-| `java.util.Map, org.springframework.ui.Model, org.springframework.ui.ModelMap` | 获取 模型(`model`)|
-| `RedirectAttributes` | 重定向时参数的处理|
-| `@ModelAttribute` | 获取已经存在的模型的属性 |
-| Errors, BindingResult | 从校验器或者数据绑定的对象获得错误信息|
-| `SessionStatus + class-level @SessionAttributes` | 获取会话状态与属性 |
-| `UriComponentsBuilder` | Uri生成器 |
-| `@SessionAttribute` | 会话属性 |
-| `@RequestAttribute` | 请求属性|
-| Any other argument | 其他的属性会被封装成`RequestParameter`或者`ModelAttribute`|
+    | 控制方法参数(Controller method argument) | 描述(Description) |
+    | :--: | :--: |
+    |WebRequest, NativeWebRequest | 不用直接操作`Servlet API`就可以操作请求参数, 请求或者会话的属性|
+    | javax.servlet.ServletRequest javax.servlet.ServletResponse|可以直接选择特殊的请求或者响应类型, 例如`HTTPServletRequest`/`MultipartRequest`/`MultipartHttpServletRequest`|
+    | javax.servlet.http.HttpSession|强制一个会话的存在. 获得会话的过程不是线程安全的, 可以考虑设置`RequestMappingHandlerAdapter`的`synchronizeOnSession`为`true`|
+    | javax.servlet.http.PushBuilder | 符合`HTTP/2`标准的`servlet`4.0 API, 不支持`HTTP/2`的请求此属性为`null`|
+    | HTTP Method | 请求的方法|
+    | java.util.Locale | 请求的本地环境对象|
+    | ZoneId TimeZone | 本地化的识别对象 |
+    | InputStream Reader | 请求的输入流 |
+    | OutputStream Writer | 响应的输出流 |
+    | `@PathVariable` | 从请求的URI中获取定义的信息|
+    | `@MatrixVariable` | 获取请求参数|
+    | `@RequestParam` | 获取查询参数 |
+    | `@RequestHeader`| 获取请求头内容 |
+    | `@CookieValue`| 获取Cookie中的内容 |
+    | `@RequestBody`| 把请求参数封装成对象 |
+    | `HttpEntity` | 把请求头和请求内容封装 |
+    | `RequestPart` | 获取`multipart/form-data`内容|
+    | `java.util.Map, org.springframework.ui.Model, org.springframework.ui.ModelMap` | 获取 模型(`model`)|
+    | `RedirectAttributes` | 重定向时参数的处理|
+    | `@ModelAttribute` | 获取已经存在的模型的属性 |
+    | Errors, BindingResult | 从校验器或者数据绑定的对象获得错误信息|
+    | `SessionStatus + class-level @SessionAttributes` | 获取会话状态与属性 |
+    | `UriComponentsBuilder` | Uri生成器 |
+    | `@SessionAttribute` | 会话属性 |
+    | `@RequestAttribute` | 请求属性|
+    | Any other argument | 其他的属性会被封装成`RequestParameter`或者`ModelAttribute`|
+#### 返回值(Return Value)
+1. 支持的返回值控制    
+    | 返回值 | 描述|
+    | :--: | :--: |
+    | `@ReturnBody` | 把方法的返回值直接写入输出流 |
+    | `HttpEntity<B>, ResponseEntity<B>` | 控制返回的内容和返回头等信息 |
+    | `HttpHeaders` | 只返回头信息, 没有内容 |
+    | `String` | 返回视图的名称, 进而渲染视图返回 |
+    | `View` | 返回确定的视图 |
+    | `java.util.Map, org.springframework.ui.Model` | 返回模型内容并且通过`RequestToViewNameTranslator`找到视图名称 |
+    | `@ModelAttribute` | 为模型添加属性, 并且通过`RequestToViewNameTranslator`找到相应的视图名称 | 
+    | `ModelAndView ` | 返回指定的模型和视图名称 |
+    | `void` | 返回为`void`或者`null`的时候, 程序会当作已经处理过响应内容, 或者没有内容返回, 或者返回默认的视图|
+    | `Callable<V>` | 在`SpringMVC`主线程中返回一个异步调用 |
+    | `DeferredResult<V>`| 在任意线程中返回一个事件或者回调函数|
+    | `ListenableFuture<V>, java.util.concurrent.CompletionStage<V>, java.util.concurrent.CompletableFuture<V>` | `DeferredResult<V>`的另一种更便利的选择 |
+    | `ResponseBodyEmitter, SseEmitter` | 生成一个异步的响应流|
+    | `StreamingResponseBody` | 异步写入响应流中|
+    | `Reactive types — Reactor, RxJava, or others via ReactiveAdapterRegistry` | 对于多值(Multi-value)的流来说是`Deferred Result<V>`的另一种选择|
+    | Any other return value | 对于其他的`String/void`来说, 他们被当作视图名称返回, 或者被当作模型的属性|
+#### 类型转换
+1. 请求参数通常是`String`类型的, 对于简单的类型(int, lang, Date等)会进行类型转换
+2. 可以通过`WebDataBinder`来自定义转换
+#### `@ModelAttribute`
+1. 对于`public String processSubmit(@ModelAttribute Pet pet) { }`的定义, `Pet`的初始化遵循以下顺序
+    - 模型中已经有的属性直接赋值
+    - 从会话中获得
+    - 从`URI Path`变量中获得
+    - 默认的构造函数
+    - 有参数的构造函数, 参数从`ServletRequest`中获得
+2. 数据绑定(`DataBinding`)可能会出错, 所以应该在`@ModelAttribute`之后添加参数(`BindingResult`)
+```java
+@PostMapping("/owners/{ownerId}/pets/{petId}/edit")
+public String processSubmit(@ModelAttribute("pet") Pet pet, BindingResult result) {
+    if (result.hasErrors()) {
+        return "petForm";
+    }
+    // ...
+}
+```
+3. `@ModelAttribute`注解的方法会在每一个`Mapping`方法之前调用
+4. 当不需要数据绑定的时候可以`@ModelAttribute(binding=false)`
+#### `@SessionAttributes`
+1. 类级别的注解
+2. 将参数存储在会话中
+3. 无法在第一次请求的函数中获得此值
+#### `@SessionAttribute`
+1. 获得此前存储在会话中的值
+#### `@RequestAttribute`
+1. 用来获取以前存储在请求中的属性, 例如在拦截器或者过滤器中添加的属性
+#### 重定向属性(Redirect Attribute)
+1. 在URI中定义的变量在重定向时可以使
+```java
+@GetMapping("/demo/{dog}")
+public String redic(){
+    return "redirect:/demo/{dog}";
+}
+```
+2. 另一种保存重定向参数的方式是`flash attribute`, 此方法把参数保存在会话中
+#### Flash Attributes
+1. Flash Attributes 提供了在两个请求之间保存属性的方法, 通常在重定向时需要
+2. 在控制方法的参数列表中声明`RedirectAttribute`就可以存储属性, 在重定向的方法中可以从模型中取出使用
+#### 多部件支持(Multipart)
+1. 在声明过`multipartResolver`之后, `POST`请求中`multipart/form-data`会被解析, 然后就可以看成平常的请求参数
+2. 上传文件示例:
+```java
+@PostMapping("upload")
+@ResponseBody
+public List<String> up(HttpServletRequest request) throws IOException, ServletException {
+	List<String> result = new LinkedList<>();
+	File dir = new File("h:/shuo");
+	if (!dir.exists()) {
+		if (!dir.mkdirs()) {
+			result.add("Error");
+			return result;
+		}
+	}
 
+	for (Part part : request.getParts()) {
+                //fileName : 从头信息中通过正则表达式提取文件名
+		String name = fileName(part.getHeader("Content-disposition"));
+		if (name.length() > 0) {
+			part.write(dir.getPath() + "/" + name);
+			result.add(fileName(part.getHeader("Content-disposition")) + " Done");
+		}
+
+	}
+	return result;
+}
+```
+3. 多部件也可以进行数据绑定
+```java
+class MyForm {
+
+    private String name;
+
+    private MultipartFile file;
+
+    // ...
+
+}
+
+@Controller
+public class FileUploadController {
+
+    @PostMapping("/form")
+    public String handleFormUpload(MyForm form, BindingResult errors) {
+
+        if (!form.getFile().isEmpty()) {
+            byte[] bytes = form.getFile().getBytes();
+            // store the bytes somewhere
+            return "redirect:uploadSuccess";
+        }
+
+        return "redirect:uploadFailure";
+    }
+
+}
+```
+#### `@RequestBody`
+1. 可以用此注释来反序列化请求体, 封装为对象
+#### `HttpEntity`
+1. 大体上与`@RequestBody`相同, 同时包括头信息
+```java
+@PostMapping("/accounts")
+public void handle(HttpEntity<Account> entity) {
+    // ...
+}
+```
+#### `@ResponseBody`
+1. 此注释标记函数的返回值直接写入响应流
+2. `@RestController` 可以看作`@Controller` + `@ResponseBody`
+
+#### `ResponseEntity`
+1. 包含了头信息的`@ResponseBody`
+#### `JackSon Json`
+1. `SpringMVC`内在支持`Jackson`的序列化, `@ResponseBody`的结果会被序列化
+2. `@JsonView`控制序列化区域
+3. 控制视图渲染时的序列化
+```java
+@Controller
+public class UserController extends AbstractController {
+
+    @GetMapping("/user")
+    public String getUser(Model model) {
+        model.addAttribute("user", new User("eric", "7!jd#h23"));
+        model.addAttribute(JsonView.class.getName(), User.WithoutPasswordView.class);
+        return "userView";
+    }
+}
+```
+4. `Jackson JSONP`:
+    - 通过继承`AbstractJsonpResponseBodyAdvice`类并添加`@ControllerAdvice`来提供`JSONP`解析支持
+    - ```java
+        @ControllerAdvice
+        public class JsonpAdvice extends AbstractJsonpResponseBodyAdvice {
+        
+            public JsonpAdvice() {
+                super("callback");
+            }
+        }
+        ```
