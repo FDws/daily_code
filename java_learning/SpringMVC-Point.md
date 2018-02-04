@@ -17,3 +17,4 @@
     }
     ```
 3. 使用`@SessionAttributes`注解控制类时, 无法在第一次请求的会话中获得此注解注册的值
+4. `MvcUriComponentsBuilder.fromMethodCall`方法必须确保对应的方法返回值是非`final`的

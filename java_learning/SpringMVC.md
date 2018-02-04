@@ -531,3 +531,99 @@ public class UserController extends AbstractController {
             }
         }
         ```
+### 模型方法(Model Method)
+1. `@ModelAttribute`注解:
+    - 注解方法, 则会在每个`Mapping`执行之前执行, 当方法有返回值的时候, 会把返回值加入模型属性中
+    - 注解参数, 则会把参数加入模型属性中
+### 数据绑定方法(Binder Method)
+1. 使用`@InitBinder`注解方法来实现数据的绑定
+2. 方法的参数除了`@ModelAttribute`之外同`@RequestMapping`方法参数相同
+```java
+@Controller
+public class FormController {
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setLenient(false);
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
+    }
+
+    // ...
+}
+```
+3. `FormattingConversionService`类的子类可以直接进行绑定
+```java
+@Controller
+public class FormController {
+
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.addCustomFormatter(new DateFormatter("yyyy-MM-dd"));
+    }
+
+    // ...
+}
+```
+### 控制增强(Controller Advice)
+1. `@ControllerAdvice`注释的类会全局的增强`@Controller`类的功能
+2. 全局的`@InitBinder`和`@ModelAttribute`会在非全局的控制器方法发之前调用, 而`@Exception`会在非全局的方法之后调用
+3. 此注解默认会适用与所有的请求, 不过可以通过参数定制使用的请求
+```java
+// 适用所有 @RestController 注解的控制类
+@ControllerAdvice(annotations = RestController.class)
+public class ExampleAdvice1 {}
+
+// 适用包下的所有控制类
+@ControllerAdvice("org.example.controllers")
+public class ExampleAdvice2 {}
+
+// 适用于所有指定类以及子类
+@ControllerAdvice(assignableTypes = {ControllerInterface.class, AbstractController.class})
+public class ExampleAdvice3 {}
+```
+### URI 链接
+1. `UriComponentsBuilder`&`UriComponents`用来生成URI
+```java
+UriComponents uriComponents = UriComponentsBuilder.fromUriString(
+        "http://example.com/hotels/{hotel}/bookings/{booking}").build();
+
+URI uri = uriComponents.expand("42", "21").encode().toUri();
+```
+2. `UriCOmponents`是不可变对象, `expand() encode()`返回的是新的对象
+3. 在`Servlet`环境中, 可以使用`ServletUriComponentsBuilder`来复用请求路径的信息
+#### 连接到控制方法
+1. 可以构建对应特定控制方法的URI
+```java
+@Controller
+@RequestMapping("/hotels/{hotel}")
+public class BookingController {
+
+    @GetMapping("/bookings/{booking}")
+    public String getBooking(@PathVariable Long booking) {
+        // ...
+    }
+}
+// 构造链接到`getBooking`方法的URI
+UriComponents uriComponents = MvcUriComponentsBuilder
+    .fromMethodName(BookingController.class, "getBooking", 21).buildAndExpand(42);
+
+URI uri = uriComponents.encode().toUri();
+```
+2. 通过`mock`来连接到控制方法, 确保方法返回值是非`final`对象
+```java
+UriComponents uriComponents = MvcUriComponentsBuilder
+    .fromMethodCall(on(BookingController.class).getBooking(21)).buildAndExpand(42);
+
+URI uri = uriComponents.encode().toUri();
+```
+### 在视图中创建链接
+1. 利用spring标签
+```jsp
+<%@ taglib uri="http://www.springframework.org/tags" prefix="s" %>
+...
+<a href="${s:mvcUrl('PAC#getAddress').arg(0,'US').buildAndExpand('123')}">Get Address</a>
+```
+2. `A#b`: 
+    - A : 类名称
+    - b : 方法名称
