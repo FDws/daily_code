@@ -625,5 +625,59 @@ URI uri = uriComponents.encode().toUri();
 <a href="${s:mvcUrl('PAC#getAddress').arg(0,'US').buildAndExpand('123')}">Get Address</a>
 ```
 2. `A#b`: 
-    - A : 类名称
+    - A : 类名称中的大写字母
     - b : 方法名称
+## 异常处理(Exception Handling)
+### 综述(Overview)
+1. `HandlerExceptionResolver`接口实现类统一处理执行控制流程过程中出现的异常
+### `@ExceptionHandler`
+1. `HandlerExceptionResolver`和`SimpleMappingExceptionResolver`的实现类可以允许映射特定的异常到特定的视图. 然而当有`@ResponseBody`注释的时候, 使用`@ExceptionHandler`更为方便
+```java
+@Controller
+public class SimpleController {
+
+    // @RequestMapping methods omitted ...
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> handleIOException(IOException ex) {
+        // prepare responseEntity
+        return responseEntity;
+    }
+
+}
+```
+2. `@ExceptionHandler`注释会把所有的声明异常放在一个列表中, 当抛出的异常与列表中的异常匹配时, 会调用响应的方法来处理
+3. 注释的方法参数类似`@RequestMapping`, 返回值也相似, `String`对应视图名等
+### 框架异常(Framework Exceptions) 
+1. `Springmvc`把相应的异常转换为对应的状态吗, 可以在`web.xml`文件中配置响应页面
+```xml
+<error>
+    <error-code>404</error-code>
+    <location>/404.jsp</location>
+</error>
+```
+2. 对应关系
+    | 异常 | 状态码 |
+    | :--: | :--:|
+    | BindException | 404(Bad Request) |
+    | ConversionNotSupportedException| 500(Internal Server Error) |
+    | HttpMediaTypeNotAcceptableException | 406(Not Acceptable) |
+    | HttpMediaTypeNotSupportException | 415(Unsupported Media Type) |
+    | HttpMessageNotReadableException | 400(Bad Request) |
+    | HttpMessageNotWritableException | 500(internal Server Error) |
+    | HttpRequestMethodNotSupportedException | 405 (Method Not allowed ) | 
+    | MethodArgumentNotValidException | 400(Bad Request) |
+    | MissingPathVariableException | 500|
+    | MissingServletRequestParameterException | 400|
+    | MissingServletRequestPartException | 400|
+    | NoHandlerFoundException | 404 (Not found) |
+    | NoSuchRequestHandlingMethodException | 404|
+    | TypeMismatchException | 400 |
+### REST API Exceptions
+1. `@RestController`可以使用`@ExceptionHandler`注解的方法来返回一个包含错误信息和状态码的`ResponseEntity`
+2. 通过继承`ResponseEntityExceptionHandler`来实现一个自己的异常处理类, 加入`@RestController`, 实现当抛出特定异常的时候返回自定义的`ResponseEntity`
+### 容器错误页
+1. 可以在`web.xml`文件中配置错误对应的页面
+2. 状态码和错误信息写入了`request`, 可以取出显示
+    - 状态码 : `javax.servlet.error.status_code`
+    - 错误信息 : `javax.servler.error.message`
