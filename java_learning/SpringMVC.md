@@ -681,3 +681,118 @@ public class SimpleController {
 2. 状态码和错误信息写入了`request`, 可以取出显示
     - 状态码 : `javax.servlet.error.status_code`
     - 错误信息 : `javax.servler.error.message`
+## 异步请求(Async Requests)
+### 延迟结果(DeferrResult)
+1. 示例:
+```java
+@GetMapping("/async")
+@ResponseBody
+public DeferredResult<String> asy(){
+	DeferredResult<String> deferredResult = new DeferredResult<>();
+	new Thread(() -> {
+		try {
+			TimeUnit.SECONDS.sleep(2);
+			deferredResult.setResult("demo");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}).start();
+	return deferredResult;
+}
+```
+### Callable
+1. 控制方法也可以把返回结果包装在`Callable`中
+```java
+@GetMapping("/callable")
+@ResponseBody
+public Callable<String> ca(){
+	return () -> {
+		TimeUnit.SECONDS.sleep(2);
+		return "callable";
+	};
+}
+```
+### 异步请求流程(Processing)
+1. 通过调用`request.startAsync()`使`ServletRequest`被放入异步模式, 此模式下, `Servlet`和`Filter`退出时响应流依然存在.
+2. `request.startAsync()`返回`AsyncContext`, 它会在异步流程中被其他的控制流使用, `AsyncContext`和容器上下文使用方法基本一致
+3. `ServletRequest`提供了获取当前分发类型的方法, 可以用来区分原始请求/异步分发/转发或者其他的分发类型
+#### `DeferredResult`流程
+1. 控制器返回一个`DeferredResult`并且存储在队列或者列表中
+2. `SpringMVC`调用`request.startAsync()`
+3. `DispatcherServlet`和所有的过滤器退出请求流程, 响应流仍然打开着
+4. 应用把`DeferredResult`放入其他的线程, `Springmvc`分发器分发请求到`Servlet`容器
+5. `DispatcherServelet`重新被调用, 去处理异步产生的返回值
+#### `Callable`流程
+1. 控制器返回一个`Callable`
+2. `SpringMVC`调用`request.startAsync()`方法并且提交`Callable`对象到独立线程的任务执行器(TaskExecutor)
+3. `DispatcherServlet`和所有的过滤器退出请求流程, 响应流仍然打开着
+4. 最终, `Callable`产生结果`SpringMVC`分发结果到容器, 最终完成流程
+5. `DispatcherServlet`重新被调用处理异步请求的结果
+### 异常处理(Exception handling)
+1. 使用`DeferredResult`时 , 可以选择调用`setResult`或`setErrorResult`, 这两种方法都会使分发器把结果提供给容器来完成流程, 然后就可以当作普通的异常来处理, 例如利用`@ExceptionHandler`
+2. `Callable`类似与`DeferredResult`, 不同之处在于异常是返回的还是抛出的
+### 拦截器(Interception)
+1. `AsyncHandlerInterceptor`可以在请求开始异步流程的时候调用`afterConcurrentHandlingStarted`来代替`HandlerInterceptor`的`postHandler`和`afterCompletion`
+2. 可以注册`CallableProcessingInterceptor`或者`DeferredResultProcessingInterceptor`来更深入的和异步流程集成
+3. `DeferredResult`提供了`onTimeOut(Runnable)`和`onCompletion(Runnable)`方法来回调; `Callable`可以用`WebAsyncTask`代替, 然后就可以获得超时和完成的方法回调
+### 响应流(Streaming Response)
+1. `ResponseBodyEmitter`可以在一个响应流中多次写入对象, 对象会被`HttpMessageConverter`序列化到响应流中
+2. `ResponseBodyEmitter`同样可以用在`ResponsseEntity`中
+### `Server-Sent Events`
+1. `ResponseBodyEmitter`的子类`SseEmitter`用来提供`Server-Sent`服务
+```java
+GetMapping(value = "/sseinfo", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+public SseEmitter sse() {
+	SseEmitter sseEmitter = new SseEmitter();
+	new Thread(() -> {
+		try {
+			for (int i = 0; i < 10; i++) {
+				sseEmitter.send("info " + i);
+				TimeUnit.SECONDS.sleep(1);
+			}
+			sseEmitter.complete();
+		} catch (InterruptedException | IOException e) {
+			e.printStackTrace();
+		}
+	}).start();
+	System.out.println("Main thread return");
+	return sseEmitter;
+}
+```
+```js
+let text = document.getElementById("tex");
+function sse() {
+    let source = new EventSource("/sseinfo");
+    source.addEventListener('open', function () {
+        text.value = text.value + "\n" + "Open succ";
+    });
+    source.addEventListener('error', function () {
+        text.value = text.value + '\n' + "Has Error";
+        source.close();
+    });
+    source.addEventListener('message', function (event) {
+        text.value = text.value + '\n' + event.data;
+    });
+}
+```
+2. `IE`浏览器不支持, 此种需求可以用`WebSocket`实现
+### 二进制内容
+1. `StreamResponseBody`提供了返回二进制内容的异步方法
+```java
+@GetMapping("/download")
+public StreamingResponseBody handle() {
+    return new StreamingResponseBody() {
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+            // write...
+        }
+    };
+}
+```
+2. `StreamResponseBody`也可以作为`Response Entity`的内容部分
+### 异步配置
+1. `Servlet`版本`>=3.0`
+2. 相应的`Servlet`和`Filter`开启异步支持
+3. 过滤器指定对应的分发类型`DispatcherType`
+4. `<mvc:annotation>`有子属性`<mvc:async-support>`配置异步参数
+5. `WebMvcConfigure`有`configureAsyncSupport`配置异步参数

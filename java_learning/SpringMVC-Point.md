@@ -18,3 +18,8 @@
     ```
 3. 使用`@SessionAttributes`注解控制类时, 无法在第一次请求的会话中获得此注解注册的值
 4. `MvcUriComponentsBuilder.fromMethodCall`方法必须确保对应的方法返回值是非`final`的
+5. 需要异步调用时, 确保所有的过滤器支持异步, 并添加`DispatcherType`
+```java
+fd.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
+fd.setAsyncSupported(true);
+```
