@@ -796,3 +796,515 @@ public StreamingResponseBody handle() {
 3. 过滤器指定对应的分发类型`DispatcherType`
 4. `<mvc:annotation>`有子属性`<mvc:async-support>`配置异步参数
 5. `WebMvcConfigure`有`configureAsyncSupport`配置异步参数
+## 跨域资源分享(CORS)
+1. 浏览器禁止使用`AJAX`来请求非同源的信息
+2. `CORS`允许指定那些跨域请求是合法的
+3. `SpringMVC`内嵌了对`CORS`的支持
+    - 当请求映射对应处理器后, `HandlerMapping`会检查`CORS`配置, 采取进一步的动作
+    - 预请求(`Preflight`)会被直接处理, 简单请求会被拦截, 验证, 添加`CORS`相应头信息
+4. 为了实现跨域请求, 必须明确的声明`CORS`配置
+### `@CrossOrigin`
+1. 注释控制方法
+```java
+@RestController
+@RequestMapping("/account")
+public class AccountController {
+
+    @CrossOrigin
+    @GetMapping("/{id}")
+    public Account retrieve(@PathVariable Long id) {
+        // ...
+    }
+
+    @DeleteMapping("/{id}")
+    public void remove(@PathVariable Long id) {
+        // ...
+    }
+}
+```
+2. 支持注释在控制方法或者类
+### 全局配置(Global Config)
+1. 默认配置
+    - 允许所有的源
+    - 允许所有的头信息
+    - 允许`GET　HEAD　POST`方法.
+    - `allowedCredentials` 不被支持
+    - 最大时间 30 分钟
+2. Java Config
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+
+        registry.addMapping("/api/**")
+            .allowedOrigins("http://domain2.com")
+            .allowedMethods("PUT", "DELETE")
+            .allowedHeaders("header1", "header2", "header3")
+            .exposedHeaders("header1", "header2")
+            .allowCredentials(true).maxAge(3600);
+
+        // Add more mappings...
+    }
+}
+```
+3. XML Config
+```xml
+<mvc:cors>
+
+    <mvc:mapping path="/api/**"
+        allowed-origins="http://domain1.com, http://domain2.com"
+        allowed-methods="GET, PUT"
+        allowed-headers="header1, header2, header3"
+        exposed-headers="header1, header2" allow-credentials="true"
+        max-age="123" />
+
+    <mvc:mapping path="/resources/**"
+        allowed-origins="http://domain1.com" />
+
+</mvc:cors>
+```
+### `CORS`过滤器
+```java
+CorsConfiguration config = new CorsConfiguration();
+
+// Possibly...
+// config.applyPermitDefaultValues()
+
+config.setAllowCredentials(true);
+config.addAllowedOrigin("http://domain1.com");
+config.addAllowedHeader("");
+config.addAllowedMethod("");
+
+UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+source.registerCorsConfiguration("/**", config);
+
+CorsFilter filter = new CorsFilter(source);
+```
+## 浏览器缓存(Http Caching)
+### `Cache-Control`
+1. SpringMVC 使用API配置:`setCachePeriod(int seconds)`
+    - -1 : 不会生成`Cache-Control`响应头
+    - 0 : 使用`Cache-Control: no-store`禁用缓存
+    - n>0 : 设置缓存失效时间
+2. `CacheControl`对象可以方便的构建`Cache-Control`指令
+```java
+// Cache for an hour - "Cache-Control: max-age=3600"
+CacheControl ccCacheOneHour = CacheControl.maxAge(1, TimeUnit.HOURS);
+
+// Prevent caching - "Cache-Control: no-store"
+CacheControl ccNoStore = CacheControl.noStore();
+
+// Cache for ten days in public and private caches,
+// public caches should not transform the response
+// "Cache-Control: max-age=864000, public, no-transform"
+CacheControl ccCustom = CacheControl.maxAge(10, TimeUnit.DAYS)
+                                    .noTransform().cachePublic();
+```
+### `Static resources`
+1. 静态资源应该被缓存以获得最佳的性能
+```xml
+<mvc:resources mapping="/static/**" location="/static/">
+        <mvc:cache-control max-age="36000" cache-public="true"/>
+    </mvc:resources>
+```
+or
+```java
+@Override
+public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    registry.addResourceHandler("/resources/**")
+            .addResourceLocations("/public-resources/")
+            .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic());
+}
+```
+### `@Controller caching`
+1. 可以在控制方法中返回`ResponseEntity`实现缓存
+```java
+@GetMapping("/book/{id}")
+public ResponseEntity<Book> showBook(@PathVariable Long id) {
+
+Book book = findBook(id);
+String version = book.getVersion();
+
+return ResponseEntity
+            .ok()
+            .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS))
+            .eTag(version) // lastModified is also available
+            .body(book);
+}
+```
+2. `RequestMapping`也可以支持缓存, 有两个要点
+    - `request.checkNotModified()`
+    - `return null`
+```java
+@RequestMapping
+public String myHandleMethod(WebRequest webRequest, Model model) {
+
+    long lastModified = // 1. application-specific calculation
+
+    if (request.checkNotModified(lastModified)) {
+        // 2. shortcut exit - no further processing necessary
+        return null;
+    }
+
+    // 3. or otherwise further request processing, actually preparing content
+    model.addAttribute(...);
+    return "myViewName";
+}
+```
+3. 共有三种检查方法
+    - `checkNoModified(lastModified)`
+    - `checkNoModified(eTag)`
+    - `checkNoModified(eTag, lastModified)`
+### ETag Filter
+1. `ShallowEtagHeaderFilter`过滤器可以自动添加头信息并且进行比对
+2. `writeWeakETag`方法控制是否是严格的比对
+## MVC Config
+### 开启配置
+1. annotation
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig {
+}
+```
+2. XML
+```xml
+<mvc:annotation-driven/>
+```
+### 配置接口
+1. 
+```java
+@Configuration
+@EnableMvc
+public class WebConfig implements WebMvcConfigure {}
+```
+2. 
+```java
+@Configuration
+public class WebConfig extends WebMvcConfigurationSupport{}
+```
+### 类型转换(Type conversion)
+1. 
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        // ...
+    }
+}
+```
+or
+```xml
+<mvc:annotation-driven conversion-service="conversionService"/>
+
+    <bean id="conversionService"
+            class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="org.example.MyConverter"/>
+            </set>
+        </property>
+        <property name="formatters">
+            <set>
+                <bean class="org.example.MyFormatter"/>
+                <bean class="org.example.MyAnnotationFormatterFactory"/>
+            </set>
+        </property>
+        <property name="formatterRegistrars">
+            <set>
+                <bean class="org.example.MyFormatterRegistrar"/>
+            </set>
+        </property>
+    </bean>
+```
+### 拦截器(Interceptors)
+1. 
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LocaleInterceptor());
+        registry.addInterceptor(new ThemeInterceptor()).addPathPatterns("/**").excludePathPatterns("/admin/**");
+        registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/secure/*");
+    }
+}
+```
+or
+```xml
+<mvc:interceptors>
+    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+    <mvc:interceptor>
+        <mvc:mapping path="/**"/>
+        <mvc:exclude-mapping path="/admin/**"/>
+        <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor"/>
+    </mvc:interceptor>
+    <mvc:interceptor>
+        <mvc:mapping path="/secure/*"/>
+        <bean class="org.example.SecurityInterceptor"/>
+    </mvc:interceptor>
+</mvc:interceptors>
+```
+### 内容类型(Content-Types)
+1. 可以配置如何确定请求内容类型, 例如通过后缀/查询参数/头信息等
+2. 默认首先匹配后缀, 然后是`Accept`头信息
+3. 手动配置
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        configurer.mediaType("json", MediaType.APPLICATION_JSON);
+    }
+}
+```
+or
+```xml
+<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager"/>
+
+<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+    <property name="mediaTypes">
+        <value>
+            json=application/json
+            xml=application/xml
+        </value>
+    </property>
+</bean>
+```
+### 信息转换
+1. 重写`configureMessageConverters`方法发替换默认的转换器
+2. 重写`extendMessageConverters`方法添加自定义转换器
+```java
+// 添加 JSON 和 XML 转换器
+@Configuration
+@EnableWebMvc
+public class WebConfiguration implements WebMvcConfigurer {
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder()
+                .indentOutput(true)
+                .dateFormat(new SimpleDateFormat("yyyy-MM-dd"))
+                .modulesToInstall(new ParameterNamesModule());
+        converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
+        converters.add(new MappingJackson2XmlHttpMessageConverter(builder.xml().build()));
+    }
+}
+```
+or
+```xml
+<mvc:annotation-driven>
+    <mvc:message-converters>
+        <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+            <property name="objectMapper" ref="objectMapper"/>
+        </bean>
+        <bean class="org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter">
+            <property name="objectMapper" ref="xmlMapper"/>
+        </bean>
+    </mvc:message-converters>
+</mvc:annotation-driven>
+
+<bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"
+      p:indentOutput="true"
+      p:simpleDateFormat="yyyy-MM-dd"
+      p:modulesToInstall="com.fasterxml.jackson.module.paramnames.ParameterNamesModule"/>
+
+<bean id="xmlMapper" parent="objectMapper" p:createXmlMapper="true"/>
+```
+### 视图控制
+1. 配置直接返回的视图
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("home");
+    }
+}
+```
+or
+```xml
+<mvc:view-controller path="/" view-name="home"/>
+```
+### 视图处理器(View Resolvers)
+1. 示例: 根据内容协商使用 FreeMarker HTML templates 和 Jackson 作为JSON渲染的默认视图
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+        registry.enableContentNegotiation(new MappingJackson2JsonView());
+        registry.jsp();
+    }
+}
+```
+or
+```xml
+<mvc:view-resolvers>
+    <mvc:content-negotiation>
+        <mvc:default-views>
+            <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+        </mvc:default-views>
+    </mvc:content-negotiation>
+    <mvc:jsp/>
+</mvc:view-resolvers>
+```
+2. FreeMarker, Tiles, Groovy MarkUp等也需要配置底层的视图
+```xml
+<mvc:view-resolvers>
+    <mvc:content-negotiation>
+        <mvc:default-views>
+            <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+        </mvc:default-views>
+    </mvc:content-negotiation>
+    <mvc:freemarker cache="false"/>
+</mvc:view-resolvers>
+
+<mvc:freemarker-configurer>
+    <mvc:template-loader-path location="/freemarker"/>
+</mvc:freemarker-configurer>
+```
+or
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+        registry.enableContentNegotiation(new MappingJackson2JsonView());
+        registry.freeMarker().cache(false);
+    }
+
+    @Bean
+    public FreeMarkerConfigurer freeMarkerConfigurer() {
+        FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+        configurer.setTemplateLoaderPath("/WEB-INF/");
+        return configurer;
+    }
+}
+```
+### 静态资源
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/resources/**")
+            .addResourceLocations("/public", "classpath:/static/")
+            .setCachePeriod(31556926);
+    }
+}
+```
+or
+```xml
+<mvc:resources mapping="/resources/**"
+    location="/public, classpath:/static/"
+    cache-period="31556926" />
+```
+1. `VersionResourceResolver`用来实现静态资源的版本控制
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/resources/**")
+                .addResourceLocations("/public/")
+                .resourceChain(true)
+                .addResolver(new VersionResourceResolver().addContentVersionStrategy("/**"));
+    }
+}
+```
+or
+```xml
+<mvc:resources mapping="/resources/**" location="/public/">
+    <mvc:resource-chain>
+        <mvc:resource-cache/>
+        <mvc:resolvers>
+            <mvc:version-resolver>
+                <mvc:content-version-strategy patterns="/**"/>
+            </mvc:version-resolver>
+        </mvc:resolvers>
+    </mvc:resource-chain>
+</mvc:resources>
+```
+### Default Servlet
+1. 静态资源需要`DefaultServletHttpRequestHandler`, 映射为`/**`, 是最低的映射权限, `order`为`Integer.MAX_VALUE`
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        configurer.enable("myCustomDefaultServlet");
+    }
+
+}
+```
+or
+```xml
+<mvc:default-servlet-handler default-servlet-name="myCustomDefaultServlet"/>
+```
+2. 默认名称是`default`, 当更改了名称时, 必须显示的指定默认`Servlet`名称
+### 路径匹配(Path Matching)
+1. 可以自定义路径匹配的参数
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer
+            .setUseSuffixPatternMatch(true)
+            .setUseTrailingSlashMatch(false)
+            .setUseRegisteredSuffixPatternMatch(true)
+            .setPathMatcher(antPathMatcher())
+            .setUrlPathHelper(urlPathHelper());
+    }
+
+    @Bean
+    public UrlPathHelper urlPathHelper() {
+        //...
+    }
+
+    @Bean
+    public PathMatcher antPathMatcher() {
+        //...
+    }
+
+}
+```
+or
+```xml
+<mvc:annotation-driven>
+    <mvc:path-matching
+        suffix-pattern="true"
+        trailing-slash="false"
+        registered-suffixes-only="true"
+        path-helper="pathHelper"
+        path-matcher="pathMatcher"/>
+</mvc:annotation-driven>
+
+<bean id="pathHelper" class="org.example.app.MyPathHelper"/>
+<bean id="pathMatcher" class="org.example.app.MyPathMatcher"/>
+```
