@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue 04 Component </title>
+    <script src="https://cdn.bootcss.com/vue/2.5.13/vue.js"></script>
+</head>
+
+<body>
+    <div id="app01">
+        <component-ap01></component-ap01>
+    </div>
+    <script>
+        Vue.component('component-ap01', {
+            template: '<div>A custom component!</div>'
+        });
+        new Vue({
+            el: "#app01",
+        });
+    </script>
+    <hr/>
+    <div id="local">
+        <local-component></local-component>
+    </div>
+    <script>
+        let loc = {
+            template: '<div>This is local Component!</div>'
+        };
+        new Vue({
+            el: '#local',
+            components: {
+                'local-component': loc
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app02">
+        <simple-counter></simple-counter>
+        <simple-counter></simple-counter>
+        <simple-counter></simple-counter>
+    </div>
+    <script>
+        let data = { counter: 0 };
+        Vue.component('simple-counter', {
+            template: '<input type="button" @click="counter += 1" :value="counter">',
+            data: function () {
+                return data;
+            }
+        });
+        new Vue({
+            el: '#app02'
+        });
+    </script>
+    <hr/>
+    <div id="app03">
+        <simple-counter1></simple-counter1>
+        <simple-counter1></simple-counter1>
+        <simple-counter1></simple-counter1>
+    </div>
+    <script>
+        Vue.component('simple-counter1', {
+            template: '<input type="button" @click="counter += 1" :value="counter">',
+            data: function () {
+                return {
+                    counter: 0
+                };
+            }
+        });
+        new Vue({
+            el: '#app03'
+        });
+    </script>
+    <hr>
+    <div id="app3">
+        <child message="hellozz"></child>
+    </div>
+    <script>
+        new Vue({
+            el: '#app3',
+            components: {
+                child: {
+                    props: ['message'],
+                    template: '<p>{{ message }}</p>'
+                }
+            }
+        });
+    </script>
+    <hr>
+    <div id="app4">
+        <child message="hello zz"></child>
+    </div>
+    <script>
+        Vue.component('child', {
+            props: ['message'],
+            template: '<span>{{ message }}</span>'
+        });
+        new Vue({
+            el: '#app4'
+        });
+    </script>
+    <hr>
+    <div id="app5">
+        <input v-model="parentMsg">
+        <br>
+        <child :my-message="parentMsg"></child>
+    </div>
+    <script>
+        new Vue({
+            el: '#app5',
+            data: {
+                parentMsg: 'Message from  parent'
+            },
+            components: {
+                child: {
+                    props: ['myMessage'],
+                    template: '<span>{{ myMessage }}</span>'
+                }
+            }
+        });
+    </script>
+    <hr>
+    <div id="app6">
+        <p>Total : {{ total }}</p>
+        <button-counter v-on:increment="incrementTotal"></button-counter>
+        <button-counter v-on:increment="incrementTotal"></button-counter>
+    </div>
+    <script>
+        Vue.component('button-counter', {
+            template: '<button @click="incrementCounter">{{ counter }}</button>',
+            data: function () {
+                return {
+                    counter: 0
+                }
+            },
+            methods: {
+                incrementCounter: function () {
+                    this.counter += 1,
+                        this.$emit('increment')
+                }
+            },
+        });
+        new Vue({
+            el: '#app6',
+            data: {
+                total: 0
+            },
+            methods: {
+                incrementTotal: function () {
+                    this.total += 1
+                }
+            }
+        });
+    </script>
+    <hr>
+    <div id="app7">
+    <currency-input v-model="price"></currency-input>
+    </div>
+    <script>
+        Vue.component('currency-input',{
+            template: `
+                <span>
+                    $
+                    <input
+                        ref="input"
+                        v-bind:value="value"
+                        v-on:input="updateValue($event.target.value)">
+                </span>`,
+            props: ['value'],
+            methods: {
+                updateValue: function(value) {
+                    let formattedValue = value
+                        .trim()
+                        .slice(0, 
+                        value.indexOf(".") === -1? value.length:value.indexOf(".")+3);
+                    if(formattedValue !== value) {
+                        this.$refs.input.value = formattedValue;
+                    }
+                    this.$emit('inpu', Number(formattedValue));
+                }
+            }
+        });
+        new Vue({
+            el:'#app7',
+            data: {
+                price:''
+            }
+        });
+    </script>
+</body>
+
+</html>
