@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue 03</title>
+    <script src="https://cdn.bootcss.com/vue/2.5.13/vue.js"></script>
+</head>
+
+<body>
+    <div id="app1" :class="{ active: isActive, 'text-danger': hasError }">
+        <p>This is Active Div</p>
+    </div>
+    <script>
+        let app1 = new Vue({
+            el: '#app1',
+            data: {
+                isActive: true,
+                hasError: false
+            }
+        });
+    </script>
+    <hr/>
+    <div id='app2' :class="classObject">
+        <p>This is App2</p>
+    </div>
+    <script>
+        let ap2 = new Vue({
+            el: '#app2',
+            data: {
+                isActive: true,
+                error: null
+            },
+            computed: {
+                classObject: function () {
+                    return {
+                        isActive: this.isActive && !this.error,
+                        error: this.error && this.error.type == 'fatal'
+                    }
+                }
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app3">
+    <template v-if="loginType ==='username'">
+        <label>UserName</label>
+        <input placeholder="Enter your username" key="username">
+    </template>
+    <template v-else>
+        <label>Email</label>
+        <input placeholder="Enter your email address" key="email-address">
+    </template>
+    <br>
+    <input type="button" @click="change" value="Change Login Type">
+    </div>
+    <script>
+        let app3 = new Vue({
+            el: '#app3',
+            data: {
+                loginType: 'username'
+            },
+            methods: {
+                change: function(){
+                    return this.loginType =this.loginType === 'username'?'email':'username';
+                }
+            }
+        });
+    </script>
+    <hr/>
+    <div id="todo-list-example">
+        <input 
+            v-model="newTodoText" 
+            @keyup.enter="addNewTodo" 
+            placeholder="Add a todo">
+        <ul>
+            <li 
+                is="todo-item" 
+                v-for="(todo, index) in todos" 
+                :key="todo.id" 
+                :title="todo.title" 
+                @remove="todos.splice(index, 1)">
+            </li>
+        </ul>
+    </div>
+    <script>
+        Vue.component('todo-item',{
+            template: '<li>{{ title }}\
+                            <input type="button" @click="$emit(\'remove\')" value=\"X\"">\
+                       </li>',
+            props:['title']
+        });
+        let app4 = new Vue({
+            el:'#todo-list-example',
+            data: {
+                newTodoText:'',
+                todos:[
+                    {
+                        id: 1,
+                        title: 'Do the dishes'
+                    },
+                    {
+                        id: 2,
+                        title: 'Take out the trash'
+                    },
+                    {
+                        id: 3,
+                        title: 'Mow the lawn'
+                    }
+                ],
+                nextTodoId: 44
+            },
+            methods: {
+                addNewTodo: function(){
+                    this.todos.push({
+                        id: this.nextTodoId++,
+                        title: this.newTodoText
+                    });
+                    this.newTodoText =''
+                }
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app6">
+        <span>Multiline message is:</span>
+        <p style="white-space: pre-line">{{ message }}</p>
+        <br>
+        <textarea v-model="message" placeholder="add multiple lines">DDDDDDDDDDDDDDDDDD</textarea>
+    </div>
+    <script>
+        let app6 = new Vue({
+            el: '#app6',
+            data: {
+                message: ''
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app7">
+        <input type="checkbox" id="jack" value="jack" v-model="checkednames">
+        <label for="jack">Jack</label>
+        <input type="checkbox" id="john" value="john" v-model="checkednames">
+        <label for="john">John</label>
+        <input type="checkbox" id="mike" value="mike" v-model="checkednames">
+        <label for="mike">Mike</label>
+        <p>CheckedNames: {{ checkednames }}</p>
+    </div>
+    <script>
+        new Vue({
+            el:'#app7',
+            data: {
+                checkednames: []
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app8">
+        <input type="radio" id="one" value="one" v-model="picked"><label for="one">One</label>
+        <br>
+        <input type="radio" id="two" value="two" v-model="picked"><label for="two">Two</label>
+        <br>
+        <p>Picked One: {{ picked }}</p>
+    </div>
+    <script>
+        new Vue({
+            el: '#app8',
+            data : {
+                picked: ''
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app9">
+        <select v-model="selected" multiple>
+            <option disabled value=''>Choose</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+        </select>
+        <p>Selected: {{ selected }}</p>
+    </div>
+    <script>
+        new Vue({
+            el: '#app9',
+            data: {
+                selected: []
+            }
+        });
+    </script>
+    <div id="app10">
+        <select v-model="selected">
+            <option v-for="option in options" v-bind:value="option.value">
+                {{ option.text }}
+            </option>
+        </select>
+        <p>Selected: {{ selected }}</p>
+        Number:<input v-model.number='age' type="number">
+        <br>
+        Trim:<input v-model.trim="con">
+    </div>
+    <script>
+        new Vue({
+            el:'#app10',
+            data: {
+                selected: 'A',
+                options:[
+                    {text: 'One', value:'A'},
+                    {text: 'Two', value:'B'},
+                    {text: 'Three', value:'C'}
+                ],
+                age: 100,
+                con: ''
+            }
+        });
+    </script>
+</body>
+
+</html>

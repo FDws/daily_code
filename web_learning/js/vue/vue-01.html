@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.bootcss.com/vue/2.5.13/vue.js"></script>
+    <title>Vue Document</title>
+</head>
+
+<body>
+    <div id="app">
+        {{ message }}
+    </div>
+    <script>
+        let app = new Vue({
+            el: '#app',
+            data: {
+                message: 'Hello Vue!'
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app-2">
+        <span v-bind:title="message">
+            鼠标悬停显示信息
+        </span>
+    </div>
+    <script>
+        let app2 = new Vue({
+            el: '#app-2',
+            data: {
+                message: "page Load on " + new Date().toLocaleDateString()
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app-3">
+        <p v-if="seen">You Can find me</p>
+    </div>
+    <script>
+        let app3 = new Vue({
+            el: '#app-3',
+            data: {
+                seen: true
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app-4">
+        <ol>
+            <li v-for="todo in todos">
+                {{ todo.text }}
+            </li>
+        </ol>
+    </div>
+    <script>
+        let app4 = new Vue({
+            el: '#app-4',
+            data: {
+                todos: [
+                    { text: 'Learn JavaScript' },
+                    { text: 'Learn Vue' },
+                    { text: 'Make a Great Project' }
+                ]
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app-5">
+        <p>{{ message }}</p>
+        <input type="button" value="Reverse Message" v-on:click="reverseMessage">
+    </div>
+    <script>
+        let app5 = new Vue({
+            el: '#app-5',
+            data: {
+                message: 'Hellow Vue.js!',
+            },
+            methods: {
+                reverseMessage: function () {
+                    this.message = this.message.split('').reverse().join('');
+                }
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app-6">
+        <p> {{ message }}</p>
+        <input v-model="message">
+    </div>
+    <script>
+        var app6 = new Vue({
+            el: '#app-6',
+            data: {
+                message: 'Hello Vue!'
+            }
+        });
+    </script>
+    <hr/>
+
+    <div id="app-7">
+        <ol>
+            <todo-item v-for="item in groceryList" v-bind:todo='item' v-bind:key="item.id"></todo-item>
+        </ol>
+    </div>
+    <script>
+        Vue.component('todo-item', {
+            props: ['todo'],
+            template: '<li>{{ todo.text }}</li>'
+        });
+        let app7 = new Vue({
+            el: '#app-7',
+            data: {
+                groceryList: [
+                    { id: 0, text: '蔬菜'},
+                    { id: 1, text: 'Fruit'},
+                    { id: 3, text: 'Other thing'}
+                ]
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -23,3 +23,4 @@
 fd.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
 fd.setAsyncSupported(true);
 ```
+6. `<mvc:annotation-driver />`不能与`WebMvcConfigurationSupport`同时启用

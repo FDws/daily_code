@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdn.bootcss.com/vue/2.5.13/vue.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue 2</title>
+</head>
+
+<body>
+    <hr/>
+    <script>
+        let data = { a: 1 };
+        let vm = new Vue({
+            data: data
+        });
+        console.log("data === vm.$data " + (data === vm.$data));
+    </script>
+    <hr/>
+    <script>
+        new Vue({
+            data: {
+                a: 1
+            },
+            created: function () {
+                console.log("Created a " + this.a);
+            }
+        });
+    </script>
+    <div id="app1">
+        <p>Using mustaches: {{ rawHtml }}</p>
+        <p>Using v-html directive:
+            <span v-html="rawHtml"></span>
+        </p>
+    </div>
+    <script>
+        let app1 = new Vue({
+            el: '#app1',
+            data: {
+                rawHtml: '<span style="color:red">This is should be red.</span>'
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app2">
+        <p v-bind:id="demoId">Dynamic Id</p>
+        <p>
+            <input type="button" v-bind:disabled="isButtonDisabled" value="Button Abled">
+        </p>
+    </div>
+    <script>
+        let app2 = new Vue({
+            el: '#app2',
+            data: {
+                demoId: 'demo',
+                isButtonDisabled: false
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app3">
+        <input type="button" value="On Click" v-on:click="doSomething">
+    </div>
+    <script>
+        let app3 = new Vue({
+            el: '#app3',
+            methods: {
+                doSomething: function () {
+                    alert("You Click Button");
+                }
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app4">
+        <input type="button" @click="click" value="ShortCur v-">
+    </div>
+    <script>
+        let app4 = new Vue({
+            el: '#app4',
+            methods: {
+                click: function () {
+                    alert("Short cut v-on");
+                }
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app5">
+        <p>Original message: {{ message }}</p>
+        <p>Computed reversed message: {{ reverseMessage }}</p>
+    </div>
+    <script>
+        let app5 = new Vue({
+            el: '#app5',
+            data: {
+                message: 'Hello'
+            },
+            computed: {
+                reverseMessage: function () {
+                    return this.message.split("").reverse().join('');
+                }
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app6">
+        FirstName:<input type="text" v-model='firstName'/><br>
+        LastName:<input type="text" v-model='lastName'/><br>
+        <p>FullName: {{ fullName }}</p>
+    </div>
+    <script>
+        let app6 = new Vue({
+            el: '#app6',
+            data: {
+                firstName: 'Foo',
+                lastName: 'abc',
+                fullName:'Foo abc'
+            },
+            watch: {
+                firstName: function(val){
+                    this.fullName = val + ' ' + this.lastName;
+                },
+                lastName: function(val) {
+                    this.fullName = this.firstName + ' ' + val;
+                }
+            }
+        });
+    </script>
+    <hr/>
+    <div id="app7">
+        FirstName:<input type="text" v-model='firstName'/><br>
+        LastName:<input type="text" v-model='lastName'/><br>
+        <p>FullName: {{ fullName }}</p>
+    </div>
+    <script>
+        let app7 = new Vue({
+            el: '#app7',
+            data: {
+                firstName: 'Foo',
+                lastName: 'abc',
+            },
+            computed: {
+                fullName: function(){
+                    return this.firstName + ' ' + this.lastName;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
