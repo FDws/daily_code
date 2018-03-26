@@ -5,6 +5,64 @@
     - 1.7- 分段锁, 大大提高了高并发环境下的处理能力. 由于不是对整个Map加锁, 所以一些需要扫描整个Map的方法(size())等需要特殊实现, clear甚至放弃了对一致性的要求. 
     - 1.8+ 使用CAS算法, 底层使用 数组+链表+红黑树 实现, 同时增加了许多辅助类
         - `sizeCtl`: 负数代表正在进行初始化或者扩容, -1 表示初始化, -N表示N-1个线程正在进行扩容操作, 正数表示还没有被初始化, 下一次扩容的大小, 此值始终是当前哈希表的0.75倍, 即与`loacfactor`对应
+### Java NIO
+1. 同步非阻塞IO模型, 核心是通道和缓冲区
+2. 缓冲(Buffer): 当数据到达时, 预先被写入缓冲区, 再由缓冲区交给线程, 线程无需阻塞的等待IO
+    - position: 下一次操作的开始位置
+    - capacity: 缓冲区的长度
+    - limit: 缓冲区不可操作的下一个元素位置 limit<=capacity
+    - mark: 记录当前position的前一个位置
+    - clear() : 清空缓冲区 position=0, limit=capacity=buffer.length
+    - flip(): 反转缓冲区 limit=position, position=0
+    - rewind(): 重绕缓冲区 position=0
+3. 通道(Channel): 通道是IO传输发生时通过的路口, 缓冲区是数据的来源或者目标. 数据需要通过通道进入缓冲区, 缓冲区中的数据需要通过通道被线程读取
+    - FileChannel : 文件通道, 对应文件IO
+    - DatagramChanneal : 数据报套接字通道, 对应UDP
+    - SocketChannel: TCP通道
+    - ServerSocketChannel: 服务器TCP通道
+4. 选择器(Selector): 监听通道事件
+    - OP_ACCEPT : 接收就绪
+    - OP_CONNECT: 连接就绪
+    - OP_READ: 读就绪
+    - OP_WRITE: 写就绪
+### Java线程池
+1. 优点:
+    - 降低资源消耗  降低由于线程创建关闭的资源消耗
+    - 提高响应速度  消除了线程创建的时间
+    - 提高线程的可管理性 线程是稀缺资源, 合理的管理线程会提高系统的稳定性
+2. 状态
+    - RUNNING: 初始化之后进入此状态
+    - SHUTDOWN: 调用shutdown() 方法后进入此状态, 线程池不接受新任务, 等待任务线程执行完毕
+    - STOP: 调用shutdownNOW()方法后进入此状态, 线程池不接受新任务, 并尝试中断正在执行的任务
+    - TERMINATED: 当所有的工作线程已经销毁, 任务缓存队列清空或执行结束, 进入此状态
+2. 使用`Executors`创建线程池
+    - newCachedThreadPool: 可缓存的线程池, 可以灵活回收空闲线程, 若无可回收, 创建新线程
+    - newFixedThreadPool: 具有固定大小的线程池, `ThreadPoolExecutor`
+    - newScheduledThreadPool: 定长线程池, 支持周期性或者定时的任务
+    - newSingleThreadPool: 单线程化的线程池, 只用唯一的工作线程执行任务, 按指定顺序执行任务
+2. `ThreadPoolExecutor`线程池
+    - corePoolSize: 核心池大小
+    - BlockingQueue: 任务队列
+        - ArrayBlockingQueue: 基于数组的有界阻塞队列
+        - LinkedBlockingQueue: 基于链表的阻塞队列, 吞吐量高于`ArrayBlockingQueue`
+        - SynchronousQueue: 不存储元素的阻塞队列, 插入操作必须等待另一个线程调用移除操作, 否则阻塞插入, 吞吐量高于`LinkedBlockingQueue`
+        - PriorityBlockingQueue: 具有优先级的无限阻塞队列
+    - maximumPoolSize: 线程池最大容量
+    - ThreadFactory: 创建线程的工厂
+    - RejectedExecutionHandler: 饱和策略, 当队列和线程池都满, 处理提交任务的策略
+        - AbortPolicy: 抛出异常, 默认
+        - CallerRunsPolicy: 使用调用`execute`方法的线程运行任务, 若执行程序关闭, 则丢弃该任务
+        - DiscardOldestPolicy: 放弃最旧的未处理请求, 重试`execute`
+        - DiscardPolicy: 丢弃任务 
+3. 提交任务:
+    - execute(): 提交无返回值的任务
+    - submit(): 提交返回`future`的任务
+4. 关闭:
+    - shutdown(): 将线程池的状态设为`SHUTDOWN`, 中断没有正在执行任务的线程
+    - shutdownNow(): 将线程池的状态设为`STOP`, 遍历工作线程, 调用`interrupt`方法中断线程
+5. 动态调整容量
+    - setCorePoolSize: 设置核心池大小
+    - setMaximumPoolSize: 设置线程池最大容量
 ### MySQL
 1. 锁:
     - Mysql的锁主要有行锁/表锁/页锁/悲观锁, 不同的引擎支持的锁特性如下:
@@ -247,7 +305,7 @@
 ### 进程与线程:
 1. 进程: 进程是具有一定独立功能的程序关于某个数据集合上的一次运行活动, 进程是系统进行资源分配和调度的一个独立单位
 2. 线程: 线程是进程的一个实体, 是CPU调度和分派的基本单位, 是比进程更小的能独立运行的基本单位. 线程自己基本上不拥有系统资源
-2. 线程安全:**当多线程访问同一个对象时, 如果不用考虑这些线程在运行时环境下的调度和交替执行, 也不需要进行额外的同步, 或者在调用方进行任何其他的协调操作, 调用这个对象的行为都可以获得正确的结果, 那这个对象是线程安全的**
+2. 线程安全:**当多线程访问同一个对象时, 如果不用考虑这些线程在运行时环境下的调度和交替执行, 也不需要进行额外的同步, 或者在调用方进行任何其他的协调操作, 调用这个对象的行为都可以获得正确的结果, 那这个对象是的**
 2. Java线程的五种状态
     - 新建(New): 创建后尚未启动的线程处于此种状态
     - 运行(Runable) : Runable包含了操作系统线程状态中的Running和Ready, 即处于此种状态的线程可能正在执行, 也可能等待CPU为他分配执行时间
