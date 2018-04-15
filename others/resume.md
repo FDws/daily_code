@@ -432,6 +432,28 @@
     - `memcached`只支持字符串, `redis`支持更丰富的数据类型
     - `redis`速度快于`memcached`
     - `redis`可以持久化数据
+## Linux
+1. 常用命令:
+    - grep: 过滤
+    - uname: 系统信息
+    - ifconfig: 网卡配置
+    - netstat: 网络状态信息
+    - route: 查看路由表
+    - pwd: 工作路径
+    - mkdir: 新建目录
+    - touch: 新建文件
+    - cp: 复制文件
+    - cat/head/tail: 显示文件内容
+    - mv: 移动文件
+    - rm: 删除文件
+    - ln: 新建链接
+    - find: 查找
+    - chgrp/chmod/chown: 修改组/所有/所有人权限
+    - gzip/tar/zip: 压缩文件
+    - dnf: 管理软件包
+    - make/cmake: 编译文件
+    - echo: 回显内容
+    - whereis: 查找文件
 ## Others
 1. 跨站脚本攻击(XSS): 未完全过滤客户提交的数据.
     - 存储型: 将恶意代码上传至服务器, 服务器未经过滤就渲染在HTML代码中, 用户访问网页时自动执行恶意脚本
