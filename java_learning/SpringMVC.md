@@ -341,6 +341,7 @@ public void handle(@PathVariable String version, @PathVariable String ext) {
 1. `@RequestsMapping`方法句柄有灵活的标记并且可以方便的处理请求参数与返回值
 #### 方法参数(Methods Arguments)
 1. 支持的控制方法参数
+
     | 控制方法参数(Controller method argument) | 描述(Description) |
     | :--: | :--: |
     |WebRequest, NativeWebRequest | 不用直接操作`Servlet API`就可以操作请求参数, 请求或者会话的属性|
@@ -369,8 +370,10 @@ public void handle(@PathVariable String version, @PathVariable String ext) {
     | `@SessionAttribute` | 会话属性 |
     | `@RequestAttribute` | 请求属性|
     | Any other argument | 其他的属性会被封装成`RequestParameter`或者`ModelAttribute`|
+
 #### 返回值(Return Value)
 1. 支持的返回值控制    
+
     | 返回值 | 描述|
     | :--: | :--: |
     | `@ReturnBody` | 把方法的返回值直接写入输出流 |
@@ -389,6 +392,7 @@ public void handle(@PathVariable String version, @PathVariable String ext) {
     | `StreamingResponseBody` | 异步写入响应流中|
     | `Reactive types — Reactor, RxJava, or others via ReactiveAdapterRegistry` | 对于多值(Multi-value)的流来说是`Deferred Result<V>`的另一种选择|
     | Any other return value | 对于其他的`String/void`来说, 他们被当作视图名称返回, 或者被当作模型的属性|
+
 #### 类型转换
 1. 请求参数通常是`String`类型的, 对于简单的类型(int, lang, Date等)会进行类型转换
 2. 可以通过`WebDataBinder`来自定义转换
@@ -657,6 +661,7 @@ public class SimpleController {
 </error>
 ```
 2. 对应关系
+
     | 异常 | 状态码 |
     | :--: | :--:|
     | BindException | 404(Bad Request) |
@@ -673,6 +678,7 @@ public class SimpleController {
     | NoHandlerFoundException | 404 (Not found) |
     | NoSuchRequestHandlingMethodException | 404|
     | TypeMismatchException | 400 |
+
 ### REST API Exceptions
 1. `@RestController`可以使用`@ExceptionHandler`注解的方法来返回一个包含错误信息和状态码的`ResponseEntity`
 2. 通过继承`ResponseEntityExceptionHandler`来实现一个自己的异常处理类, 加入`@RestController`, 实现当抛出特定异常的时候返回自定义的`ResponseEntity`
