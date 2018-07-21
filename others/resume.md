@@ -49,6 +49,14 @@
     - OP_READ: 读就绪
     - OP_WRITE: 写就绪
 
+## Java ThreadLocal
+1. 功能: 线程间变量隔离
+2. 实现原理:
+    - 每个线程有一个内部属性`ThreadLocal.ThreadLocalMap`
+    - `Map`使用当前`ThreadLocal`作为`Key`
+    - 从当前线程中取出map, 然后使用`this`取出所对应的值
+    - 可以使用`ThreadLocal.withInitial()`方法定义初始值
+
 ## Java线程池
 1. 优点:
     - 降低资源消耗  降低由于线程创建关闭的资源消耗
